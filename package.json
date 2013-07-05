@@ -1,0 +1,20 @@
+{
+    "name": "Piper",
+    "description": "Shared expense tracking in Angular and Flask",
+    "version": "0.0.0",
+    "author": {
+        "name": "Mike Cooper",
+        "email": "mythmon@gmail.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/mythmon/piper.git"
+    },
+    "dependencies": {
+        "stylus": "0.33.1"
+    },
+    "engines": {
+        "node": ">=0.10.0",
+        "npm": ">=1.2.32"
+    }
+}
