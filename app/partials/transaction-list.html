@@ -1,60 +1,56 @@
-<div class="container-fluid">
-  <div class="row-fluid">
+<div class="row">
 
-    <div class="span10">
-      <!--Body-->
-      <table class="table">
-        <tr>
-          <th>
-            When
-            <button ng-click="setOrderProp('date')">asc</button>
-            <button ng-click="setOrderProp('-date')">des</button>
-          </th>
-          <th>
-            What
-            <button ng-click="setOrderProp('name')">asc</button>
-            <button ng-click="setOrderProp('-name')">des</button>
-          </th>
-          <th>
-            How Much
-            <button ng-click="setOrderProp('amount')">asc</button>
-            <button ng-click="setOrderProp('-amount')">des</button>
-          </th>
-          <th>
-            Category
-            <button ng-click="setOrderProp('category')">asc</button>
-            <button ng-click="setOrderProp('-category')">des</button>
-          </th>
-        </tr>
-
-        <tr ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
-          <td>{{trans.date | date}}</td>
-          <td>
-            <a href="/transaction/{{ trans.id }}">{{trans.name}}</a>
-          </td>
-          <td>{{trans.amount}}</td>
-          <td>{{trans.category}}</td>
-        </tr>
-      </table>
+  <div class="small-3 columns">
+    <!--Sidebar-->
+    <div>
+      <i class="icon-search"></i> Search:
+      <input class="small-12 columns" ng-model="query">
     </div>
-
-    <div class="span2">
-      <!--Sidebar-->
-      <p>
-        <i class="icon-search"></i> Search:
-        <input ng-model="query">
-      </p>
-
-      <p>
-        <i class="icon-random"></i> Sort by:
-        <select ng-model="orderProp">
-          <option value="date">Date</option>
-          <option value="name">Name</option>
-          <option value="amount">Amount</option>
-          <option value="category">Category</option>
-        </select>
-      </p>
-    </div>
-
   </div>
+
+  <div class="small-9 columns">
+    <!--Body-->
+    <table class="table">
+      <tr>
+        <th>
+          When
+          <sort-toggle name="orderProp" value="date" />
+        </th>
+        <th>
+          What
+          <sort-toggle name="orderProp" value="name" />
+        </th>
+        <th>
+          Amount
+          <sort-toggle name="orderProp" value="amount" />
+        </th>
+        <th>
+          Category
+          <sort-toggle name="orderProp" value="category" />
+        </th>
+      </tr>
+
+      <tr>
+        <form>
+          <td><input type="text" ng-model="newTrans.date" required/></td>
+          <td><input type="text" ng-model="newTrans.name" required/></td>
+          <td><input type="text" ng-model="newTrans.amount" required/></td>
+          <td><input type="text" ng-model="newTrans.category" required/></td>
+          <td><button class="tiny" ng-click="create()">+</button></td>
+        </form>
+      </tr>
+
+      <tr ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
+        <td>{{trans.date | date}}</td>
+        <td>
+          <a href="/transaction/{{ trans.id }}">{{trans.name}}</a>
+        </td>
+        <td>{{trans.amount | currency}}</td>
+        <td>{{trans.category}}</td>
+      </tr>
+
+    </table>
+  </div>
+
+
 </div>

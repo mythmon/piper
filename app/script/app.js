@@ -1,19 +1,24 @@
-angular.module('piper', ['piperServices'])
-  .config(['$routeProvider', '$locationProvider',
-    function($routeProvider, $locationProvider) {
+(function() {
 
-      $locationProvider.html5Mode(true);
+var piper = angular.module('piper', ['ngResource']);
 
-      $routeProvider
-        .when('/transactions', {
-          templateUrl: '/static/partials/transaction-list.html',
-          controller: TransactionListCtrl
-        })
-        .when('/transaction/:id', {
-          templateUrl: '/static/partials/transaction-detail.html',
-          controller: TransactionDetailCtrl
-        })
+piper.config(['$routeProvider', '$locationProvider',
+  function($routeProvider, $locationProvider) {
 
-        .otherwise({redirectTo: '/transactions'});
-    }
-  ]);
+    $locationProvider.html5Mode(true);
+
+    $routeProvider
+      .when('/transactions', {
+        templateUrl: '/static/partials/transaction-list.html',
+        controller: 'TransactionListCtrl'
+      })
+      .when('/transaction/:id', {
+        templateUrl: '/static/partials/transaction-detail.html',
+        controller: 'TransactionDetailCtrl'
+      })
+
+      .otherwise({redirectTo: '/transactions'});
+  }
+]);
+
+})();

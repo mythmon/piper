@@ -1,6 +1,10 @@
-<ul>
-  <li><strong>Date</strong>: {{transaction.date | date}}</li>
-  <li><strong>Name</strong>: {{transaction.name}}</li>
-  <li><strong>Amount</strong>: {{transaction.amount}}</li>
-  <li><strong>Category</strong>: {{transaction.category}}</li>
-</ul>
+<div class="row">
+  <div class="small-12 columns">
+    <ul>
+      <li><strong>Date</strong>: {{transaction.date | date}}</li>
+      <li><strong>Name</strong>: {{transaction.name}}</li>
+      <li><strong>Amount</strong>: {{transaction.amount | currency}}</li>
+      <li><strong>Category</strong>: {{transaction.category}}</li>
+    </ul>
+  </div>
+</div>
