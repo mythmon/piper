@@ -18,7 +18,7 @@ def upgrade():
         'category',
         sa.Column('id', sa.Integer(), nullable=False),
         sa.Column('name', sa.String(length=64), nullable=False),
-        sa.Column('parent_id', sa.Integer(), nullable=False),
+        sa.Column('parent_id', sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(['parent_id'], ['category.id']),
         sa.PrimaryKeyConstraint('id')
     )

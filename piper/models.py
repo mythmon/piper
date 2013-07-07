@@ -1,8 +1,10 @@
 from datetime import datetime
+from numbers import Number
 
 from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
 from sqlalchemy.orm import backref, relationship
 
+from piper import utils
 from piper.database import Model
 
 
@@ -15,6 +17,13 @@ class Transaction(Model):
     purchase_date = Column(DateTime, nullable=False)
     created = Column(DateTime, default=datetime.utcnow)
     splits = relationship('Split', backref='transaction')
+
+    def __init__(self, **kwargs):
+        for field in ['purchase_date', 'created']:
+            if field in kwargs:
+                kwargs[field] = utils.coerce_datetime(kwargs[field])
+
+        super(Transaction, self).__init__(**kwargs)
 
 
 split_category_table = Table(
@@ -42,5 +51,5 @@ class Category(Model):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(64), nullable=False)
-    parent_id = Column(Integer, ForeignKey('category.id'))
+    parent_id = Column(Integer, ForeignKey('category.id'), nullable=True)
     subcategories = relationship('Category')

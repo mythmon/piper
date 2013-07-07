@@ -1,33 +1,135 @@
 import json
+import re
 
-from flask import Blueprint, jsonify, Response, request
+from flask import Blueprint, Response, request, current_app, make_response
+from flask.views import MethodView
+
+from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm.exc import NoResultFound
+
+from piper.database import get_session, Model
+from piper.models import Transaction, Split, Category
 
 
 blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
-transactions = []
+class ModelView(MethodView):
+
+    model = None
+
+    @classmethod
+    def _json_dumps(cls, obj):
+        if isinstance(obj, basestring):
+            return obj
+
+        def to_json_patch(obj):
+            if hasattr(obj, 'for_json'):
+                return obj.for_json()
+            raise TypeError
+
+        return json.dumps(obj, default=to_json_patch)
+
+    @classmethod
+    def _jsonify(cls, obj, status=200, headers={}):
+        body = cls._json_dumps(obj)
+        real_headers = {
+            'Content-Type': 'application/json; charset=UTF-8',
+        }
+        real_headers.update(headers)
+        return make_response((body, status, real_headers))
+
+    @classmethod
+    def url(cls, id=None):
+        name = cls.__name__.lower()
+        name = re.sub(r'view$', '', name)
+        url = '/{0}/'.format(name)
+        if id is not None:
+            url += str(id)
+        return url
+
+    def get(self, id):
+        db = get_session(current_app)
+
+        if id is None:
+            inst_list = db.query(self.model).all()
+            return self._jsonify(inst_list)
+        else:
+            try:
+                inst = db.query(self.model).filter(self.model.id == id).one()
+                return self._jsonify(inst)
+            except NoResultFound:
+                return make_response(('', 404, {}))
+
+    def post(self):
+        db = get_session(current_app)
+
+        data = request.get_json()
+        inst = self.model(**data)
+        db.add(inst)
+        db.commit()
+
+        return self._jsonify(inst, 201, {
+            'Location': blueprint.url_prefix + self.url(inst.id)
+        })
 
 
-@blueprint.route('/transaction', methods=['GET'])
-def transaction_list():
-    return Response(json.dumps(transactions), mimetype='application/json')
+    def delete(self, id):
+        db = get_session(current_app)
+
+        inst = db.query(self.model).filter(self.model.id == id).one()
+        db.delete(inst)
+        db.commit()
+
+        return make_response(('', 204, {}))
+
+    def put(self, id):
+        db = get_session(current_app)
+
+        data = request.get_json()
+        inst = db.query(self.model).filter(self.model.id == id).one()
+        whitelist = [c.key for c in class_mapper(self.model.__class__).columns]
+
+        for key, val in data.items():
+            if key not in whitelist:
+                return make_response(('', 403, {}))
+            setattr(inst, key, value)
+
+        db.add(inst)
+        db.commit()
+
+        return self._jsonify(inst, 200, {
+            'Location': blueprint.url_prefix + self.url(inst.id)
+        })
 
 
-@blueprint.route('/transaction/<int:id>', methods=['GET'])
-def transaction_detail(id):
-    return jsonify(transactions[id])
+def register_model_view(blueprint):
+    """Register a ModelView onto `blueprint`."""
+
+    def inner(cls):
+        view_func = cls.as_view(cls.__name__)
+        base_url = cls.url()
+
+        blueprint.add_url_rule(base_url, defaults={'id': None},
+                               view_func=view_func, methods=['GET'])
+        blueprint.add_url_rule(base_url, view_func=view_func, methods=['POST'])
+        blueprint.add_url_rule(base_url + '<int:id>', view_func=view_func,
+                               methods=['GET', 'PUT', 'DELETE'])
+        return cls
+
+    return inner
 
 
-@blueprint.route('/transaction', methods=['POST'])
-def transaction_create():
-    data = request.get_json()
-    trans = {
-        'date': data['date'],
-        'name': data['name'],
-        'category': data['category'],
-        'amount': data['amount'],
-        'id': len(transactions),
-    }
-    print 'Adding', trans
-    transactions.append(trans)
+@register_model_view(blueprint)
+class TransactionView(ModelView):
+    model = Transaction
+
+
+@register_model_view(blueprint)
+class CategoryView(ModelView):
+    model = Category
+
+
+@register_model_view(blueprint)
+class TransactionView(ModelView):
+    model = Transaction
