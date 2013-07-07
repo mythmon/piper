@@ -1,0 +1,3 @@
+DEBUG = True
+DATABASE_URL = 'sqlite:////piper.db'
+SECRET_KEY = 'You really should change this'

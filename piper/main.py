@@ -1,12 +1,23 @@
+import sys
+
 from flask import Flask
 
 from live_stylus import ConvStylus
+from werkzeug.utils import ImportStringError
 
 from piper import api, angular
 
 
 def create_app():
     app = Flask(__name__, static_folder='../app', static_url_path='/static')
+
+    app.config.from_object('piper.settings.default')
+    try:
+        app.config.from_object('piper.settings.local')
+    except ImportStringError:
+        print ('You must create piper/settings/local.py. '
+               'Use piper/settings/local.py-dist as an example.')
+        sys.exit(1)
 
     ConvStylus('app/style')
 
@@ -16,9 +27,5 @@ def create_app():
     return app
 
 
-def main():
-    create_app().run(debug=True)
-
-
 if __name__ == '__main__':
-    main()
+    create_app().run()
