@@ -9,6 +9,24 @@ from sqlalchemy.ext.declarative import declarative_base
 
 class _BaseModel(object):
 
+    def __init__(self, **kwargs):
+        self.update(**kwargs)
+        super(_BaseModel, self).__init__()
+
+    def update(self, **kwargs):
+        whitelist = self.column_whitelist()
+
+        if any(lambda k: k not in whitelist, kwargs.keys()):
+            raise TypeError('{0} is an invalid keyword argument for {1}'
+                            .format(key, self.__class__.__name__))
+
+        for key ,val in kwargs.items():
+            setattr(self, key, val)
+
+    @classmethod
+    def column_whitelist(cls):
+        return [c.key for c in class_mapper(cls).columns]
+
     def serialize(self):
         return {c.key: getattr(self, c.key)
                 for c in class_mapper(self.__class__).columns}

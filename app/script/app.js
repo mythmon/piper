@@ -12,6 +12,12 @@ piper.config(['$routeProvider', '$locationProvider',
         templateUrl: '/static/partials/transaction-list.html',
         controller: 'TransactionListCtrl'
       })
+
+      .when('/transaction/add', {
+        templateUrl: '/static/partials/transaction-add.html',
+        controller: 'TransactionAddCtrl'
+      })
+
       .when('/transaction/:id', {
         templateUrl: '/static/partials/transaction-detail.html',
         controller: 'TransactionDetailCtrl'

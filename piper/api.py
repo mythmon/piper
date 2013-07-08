@@ -43,9 +43,9 @@ class ModelView(MethodView):
     def url(cls, id=None):
         name = cls.__name__.lower()
         name = re.sub(r'view$', '', name)
-        url = '/{0}/'.format(name)
+        url = '/' + name
         if id is not None:
-            url += str(id)
+            url += '/' + str(id)
         return url
 
     def get(self, id):
@@ -88,13 +88,10 @@ class ModelView(MethodView):
 
         data = request.get_json()
         inst = db.query(self.model).filter(self.model.id == id).one()
-        whitelist = [c.key for c in class_mapper(self.model.__class__).columns]
-
-        for key, val in data.items():
-            if key not in whitelist:
-                return make_response(('', 403, {}))
-            setattr(inst, key, value)
-
+        try:
+            inst.update(data)
+        except TypeError:
+            return make_response(('', 403, {}))
         db.add(inst)
         db.commit()
 
@@ -110,10 +107,11 @@ def register_model_view(blueprint):
         view_func = cls.as_view(cls.__name__)
         base_url = cls.url()
 
-        blueprint.add_url_rule(base_url, defaults={'id': None},
-                               view_func=view_func, methods=['GET'])
-        blueprint.add_url_rule(base_url, view_func=view_func, methods=['POST'])
-        blueprint.add_url_rule(base_url + '<int:id>', view_func=view_func,
+        blueprint.add_url_rule(cls.url(), view_func=view_func,
+                               methods=['GET'], defaults={'id': None})
+        blueprint.add_url_rule(cls.url(), view_func=view_func,
+                               methods=['POST'])
+        blueprint.add_url_rule(cls.url(id='<int:id>'), view_func=view_func,
                                methods=['GET', 'PUT', 'DELETE'])
         return cls
 
@@ -131,5 +129,5 @@ class CategoryView(ModelView):
 
 
 @register_model_view(blueprint)
-class TransactionView(ModelView):
-    model = Transaction
+class SplitView(ModelView):
+    model = Split

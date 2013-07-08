@@ -1,0 +1,54 @@
+<div class="row spaced">
+  <div class="small-9 columns">
+
+    <form>
+      <fieldset>
+        <legend>Add Transaction</legend>
+        <div class="row">
+          <div class="small-3 columns">
+            <label>Date</label>
+            <input type="date" fortnight unix-time ng-model="newTrans.purchase_date" required/>
+          </div>
+          <div class="small-9 columns">
+            <label>Where</label>
+            <input type="text" ng-model="newTrans.merchant" required/>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="small-5 columns">
+            <label>Note</label>
+          </div>
+          <div class="small-3 columns">
+            <label>Cost</label>
+          </div>
+          <div class="small-4 columns">
+            <label>Categories</label>
+          </div>
+        </div>
+
+        <div class="row" ng-repeat="split in trans.splits">
+          <div class="small-5 columns">
+            <input type="text" ng-model="split.note"/>
+          </div>
+          <div class="small-3 columns">
+            <input type="text" ng-model="split.amount"/>
+          </div>
+          <div class="small-4 columns">
+            <input type="text" ng-model="split.categories"/>
+          </div>
+          <!--<div class="small-1 columns">
+            ---
+            {{splitIsEmpty(split)}}
+            {{!!split.note}} {{!!split.amount}} {{!!split.categories}}
+            {{!(!!split.note || !!split.amount || !!split.categories}}
+          </div>-->
+        </div>
+
+        <button class="tiny" ng-click="create()">Add</button>
+      </fieldset>
+
+      {{ trans }}
+    </form>
+  </div>
+</div>

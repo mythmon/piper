@@ -1,0 +1,100 @@
+.fortnight {
+  font-size: 14px;
+  font-family: sans-serif;
+  text-align: center;
+  overflow: hidden;
+
+  &.picker {
+    display: none;
+    position: absolute;
+    border: 2px solid #888;
+    z-index: 9999;
+  }
+
+  &.calendar {
+    position: relative;
+    background: #fff;
+    color: #fff;
+    overflow: hidden;
+    display: inline-block;
+  }
+
+  &.show {
+    display: block;
+  }
+
+  .month {
+    display: inline-block;
+    margin: 2px;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .week {
+    margin-top: 1px;
+    overflow: hidden;
+  }
+
+  a,
+  .label {
+    background: #fff;
+    color: #444;
+    height: 2em;
+    line-height: 2em;
+    text-decoration: none;
+    width: 2em;
+  }
+
+  a:hover {
+    background: #ddd;
+  }
+
+  .label {
+    width: 100%;
+  }
+
+  .day {
+    color: #444;
+    display: inline-block;
+    margin-left: 1px;
+    white-space: nowrap;
+  }
+
+  .day:first-child {
+    margin: 0;
+  }
+
+  .day.sel,
+  .day:hover {
+    background: #444;
+    color: #fff;
+  }
+
+  .day.badmonth {
+    background: #fff;
+    color: #aaa;
+  }
+  
+  .day.badmonth.sel {
+    background: #ddd;
+  }
+
+  .day.badmonth:hover {
+    background: #ddd;
+  }
+
+  .prev,
+  .next {
+    color: #444;
+    position: absolute;
+    top: 2px;
+  }
+
+  .prev {
+    left: 2px;
+  }
+
+  .next {
+    right: 2px;
+  }
+}
