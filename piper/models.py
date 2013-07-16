@@ -1,7 +1,8 @@
 from datetime import datetime
 from numbers import Number
 
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, String, Table
+from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,
+                        Table)
 from sqlalchemy.orm import backref, relationship
 
 from piper import utils
@@ -40,6 +41,7 @@ class Split(Model):
 
     id = Column(Integer, primary_key=True)
     note = Column(String(512))
+    amount = Column(Numeric(15, 2))
     transaction_id = Column(Integer, ForeignKey('transaction.id'),
                             nullable=False)
     categories = relationship('Category', secondary=split_category_table)

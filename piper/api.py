@@ -122,6 +122,27 @@ def register_model_view(blueprint):
 class TransactionView(ModelView):
     model = Transaction
 
+    def post(self):
+        db = get_session(current_app)
+        data = request.get_json()
+
+        splits = data.pop('splits', [])
+
+        trans = self.model(**data)
+
+        for split_data in splits:
+            split = Split(**split_data)
+            db.add(split)
+
+        db.add(trans)
+
+        db.commit()
+
+        return self._jsonify(trans, 201, {
+            'Location': blueprint.url_prefix + self.url(trans.id)
+        })
+
+
 
 @register_model_view(blueprint)
 class CategoryView(ModelView):
