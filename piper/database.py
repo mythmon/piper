@@ -1,9 +1,11 @@
 import json
 from datetime import datetime
+from decimal import Decimal
 from time import mktime
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, class_mapper
+from sqlalchemy.orm.collections import InstrumentedList
 from sqlalchemy.ext.declarative import declarative_base
 
 
@@ -36,8 +38,11 @@ class _BaseModel(object):
 
         for key, val in data.items():
             if isinstance(val, datetime):
-                # JSON uses milliseconds since the epoch for datetimes.
                 data[key] = mktime(val.timetuple()) * 1000
+            elif isinstance(val, InstrumentedList):
+                data[key] = list(val)
+            elif isinstance(val, Decimal):
+                data[key] = float(val)
 
         return data
 

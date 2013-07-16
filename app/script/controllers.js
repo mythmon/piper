@@ -2,27 +2,39 @@
 
 var piper = angular.module('piper');
 
-piper.controller('TransactionListCtrl', ['$scope', 'Transaction',
-  function TransactionListCtrl($scope, Transaction) {
-    $scope.transactions = Transaction.query();
+piper.controller('TransactionListCtrl', ['$scope', 'Restangular',
+  function TransactionListCtrl($scope, Restangular) {
+    $scope.transactions = Restangular.all('transaction').getList();
     $scope.orderProp = 'date';
   }]);
 
 
-piper.controller('TransactionDetailCtrl', ['$scope', '$routeParams', 'Transaction',
-  function($scope, $routeParams, Transaction) {
-    $scope.transaction = Transaction.get({id: $routeParams.id});
+piper.controller('TransactionDetailCtrl', ['$scope', '$routeParams', 'Restangular',
+  function($scope, $routeParams, Restangular) {
+    $scope.transaction = Restangular.one($routeParams.id).get();
   }]);
 
 
-piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Transaction',
-  function($scope, $routeParams, Transaction) {
+piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Restangular',
+  function($scope, $routeParams, Restangular) {
     $scope.trans = {
       splits: [{}]
     };
 
     $scope.create = function() {
-      console.log('Would create', $scope.trans);
+      var trans = $.extend(true, {}, $scope.trans);
+      var i = 0;
+
+      for (i = trans.splits.length - 1; i >= 0; i--) {
+        // these don't work yet.
+        delete trans.splits[i].categories;
+        
+        if (splitIsEmpty(trans.splits[i])) {
+          trans.splits.splice(i, 1);
+        }
+      }
+
+      Restangular.all('transaction').post(trans);
     }
 
     $scope.$watch('trans', function() {
@@ -42,25 +54,20 @@ piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Transaction',
         length++;
       }
 
-      i = 0;
-      console.log('length - fullRows', length - fullRows);
+      i = length - 1;
       while (length - fullRows > 1) {
         split = $scope.trans.splits[i];
         if (splitIsEmpty(split)) {
           $scope.trans.splits.splice(i, 1);
           length--;
         } else {
-          i++;
+          i--;
         }
       }
     }, true);
 
     function splitIsEmpty(split) {
-      var a = !!split.note;
-      var b = !isNaN(split.amount);
-      var c = !!split.categories;
-      var sum = a || b || c;
-      return !sum;
+      return !split.note && !split.amount && !split.categories;
     }
     $scope.splitIsEmpty = splitIsEmpty;
   }]);

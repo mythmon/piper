@@ -26,6 +26,10 @@ class Transaction(Model):
 
         super(Transaction, self).__init__(**kwargs)
 
+    def serialize(self):
+        data = super(Transaction, self).serialize()
+        data['splits'] = self.splits
+        return data
 
 split_category_table = Table(
     'association',

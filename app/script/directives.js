@@ -32,14 +32,12 @@ module.directive('sortToggle', function() {
 /* Transforms an ngModel controlled date input to return seconds since the
  * epoch when querying it in JS. */
 module.directive('unixTime', function() {
-  var format = 'M-D-YYYY';
+  var format = 'YYYY-MM-DD';
 
   return {  
     restrict: 'A',
-    require: '?ngModel',
+    require: 'ngModel',
     link: function(scope, element, attrs, ngModel) {
-      if (!ngModel) return;
-
       ngModel.$render = function() {
         toString();
       }
@@ -68,6 +66,16 @@ module.directive('unixTime', function() {
 
       toUnix();
     }
+  };
+});
+
+
+module.directive('fortnight', function() {
+  fortnight.watch('[fortnight]');
+
+  return {
+    restrict: 'A',
+    require: '?ngModel',
   };
 });
 

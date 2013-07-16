@@ -10,6 +10,7 @@ from piper import api, angular
 
 def create_app():
     app = Flask(__name__, static_folder='../app', static_url_path='/static')
+    app.url_map.strict_slashes = False
 
     app.config.from_object('piper.settings.default')
     try:

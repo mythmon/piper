@@ -4,7 +4,7 @@ import re
 from flask import Blueprint, Response, request, current_app, make_response
 from flask.views import MethodView
 
-from sqlalchemy.orm import class_mapper
+from sqlalchemy.orm import class_mapper, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
 from piper.database import get_session, Model
@@ -43,23 +43,29 @@ class ModelView(MethodView):
     def url(cls, id=None):
         name = cls.__name__.lower()
         name = re.sub(r'view$', '', name)
-        url = '/' + name
+        url = '/' + name + '/'
         if id is not None:
-            url += '/' + str(id)
+            url += str(id)
         return url
 
     def get(self, id):
-        db = get_session(current_app)
-
         if id is None:
-            inst_list = db.query(self.model).all()
-            return self._jsonify(inst_list)
+            return self.get_list()
         else:
-            try:
-                inst = db.query(self.model).filter(self.model.id == id).one()
-                return self._jsonify(inst)
-            except NoResultFound:
-                return make_response(('', 404, {}))
+            return self.get_one(id)
+
+    def get_one(self, id):
+        db = get_session(current_app)
+        try:
+            inst = db.query(self.model).filter(self.model.id == id).one()
+            return self._jsonify(inst)
+        except NoResultFound:
+            return make_response(('', 404, {}))
+
+    def get_list(self):
+        db = get_session(current_app)
+        inst_list = db.query(self.model).all()
+        return self._jsonify(inst_list)
 
     def post(self):
         db = get_session(current_app)
@@ -122,20 +128,26 @@ def register_model_view(blueprint):
 class TransactionView(ModelView):
     model = Transaction
 
+    def get_list(self):
+        db = get_session(current_app)
+        inst_list = (db.query(self.model)
+                     .options(subqueryload(Transaction.splits))
+                     .all())
+        #raise
+        return self._jsonify(inst_list)
+
+
     def post(self):
         db = get_session(current_app)
         data = request.get_json()
-
         splits = data.pop('splits', [])
-
         trans = self.model(**data)
 
         for split_data in splits:
-            split = Split(**split_data)
+            split = Split(transaction=trans, **split_data)
             db.add(split)
 
         db.add(trans)
-
         db.commit()
 
         return self._jsonify(trans, 201, {
