@@ -36,13 +36,17 @@ class _BaseModel(object):
     def for_json(self):
         data = self.serialize()
 
-        for key, val in data.items():
-            if isinstance(val, datetime):
-                data[key] = mktime(val.timetuple()) * 1000
-            elif isinstance(val, InstrumentedList):
-                data[key] = list(val)
-            elif isinstance(val, Decimal):
-                data[key] = float(val)
+        try:
+            for key, val in data.items():
+                if isinstance(val, datetime):
+                    data[key] = mktime(val.timetuple()) * 1000
+                elif isinstance(val, InstrumentedList):
+                    data[key] = list(val)
+                elif isinstance(val, Decimal):
+                    data[key] = float(val)
+        except AttributeError:
+            # This means that data isn't a dict, which is ok.
+            pass
 
         return data
 

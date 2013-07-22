@@ -7,6 +7,7 @@ from flask.views import MethodView
 from sqlalchemy.orm import class_mapper, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
+from piper import utils
 from piper.database import get_session, Model
 from piper.models import Transaction, Split, Category
 
@@ -54,23 +55,22 @@ class ModelView(MethodView):
         else:
             return self.get_one(id)
 
-    def get_one(self, id):
-        db = get_session(current_app)
+    @utils.with_db
+    def get_one(self, id, db):
         try:
             inst = db.query(self.model).filter(self.model.id == id).one()
             return self._jsonify(inst)
         except NoResultFound:
             return make_response(('', 404, {}))
 
-    def get_list(self):
-        db = get_session(current_app)
+    @utils.with_db
+    def get_list(self, db):
         inst_list = db.query(self.model).all()
         return self._jsonify(inst_list)
 
-    def post(self):
-        db = get_session(current_app)
-
-        data = request.get_json()
+    @utils.with_db
+    def post(self, db):
+        data = request.get_json(force=True)
         inst = self.model(**data)
         db.add(inst)
         db.commit()
@@ -79,19 +79,16 @@ class ModelView(MethodView):
             'Location': blueprint.url_prefix + self.url(inst.id)
         })
 
-
-    def delete(self, id):
-        db = get_session(current_app)
-
+    @utils.with_db
+    def delete(self, id, db):
         inst = db.query(self.model).filter(self.model.id == id).one()
         db.delete(inst)
         db.commit()
 
         return make_response(('', 204, {}))
 
-    def put(self, id):
-        db = get_session(current_app)
-
+    @utils.with_db
+    def put(self, id, db):
         data = request.get_json()
         inst = db.query(self.model).filter(self.model.id == id).one()
         try:
@@ -127,33 +124,6 @@ def register_model_view(blueprint):
 @register_model_view(blueprint)
 class TransactionView(ModelView):
     model = Transaction
-
-    def get_list(self):
-        db = get_session(current_app)
-        inst_list = (db.query(self.model)
-                     .options(subqueryload(Transaction.splits))
-                     .all())
-        #raise
-        return self._jsonify(inst_list)
-
-
-    def post(self):
-        db = get_session(current_app)
-        data = request.get_json()
-        splits = data.pop('splits', [])
-        trans = self.model(**data)
-
-        for split_data in splits:
-            split = Split(transaction=trans, **split_data)
-            db.add(split)
-
-        db.add(trans)
-        db.commit()
-
-        return self._jsonify(trans, 201, {
-            'Location': blueprint.url_prefix + self.url(trans.id)
-        })
-
 
 
 @register_model_view(blueprint)

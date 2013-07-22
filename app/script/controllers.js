@@ -11,7 +11,7 @@ piper.controller('TransactionListCtrl', ['$scope', 'Restangular',
 
 piper.controller('TransactionDetailCtrl', ['$scope', '$routeParams', 'Restangular',
   function($scope, $routeParams, Restangular) {
-    $scope.transaction = Restangular.one($routeParams.id).get();
+    $scope.trans = Restangular.one('transaction', $routeParams.id).get();
   }]);
 
 
@@ -26,12 +26,12 @@ piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Restangular',
       var i = 0;
 
       for (i = trans.splits.length - 1; i >= 0; i--) {
-        // these don't work yet.
-        delete trans.splits[i].categories;
-        
         if (splitIsEmpty(trans.splits[i])) {
           trans.splits.splice(i, 1);
+          continue;
         }
+
+        trans.splits[i].categories  = trans.splits[i].categories.split(',');
       }
 
       Restangular.all('transaction').post(trans);

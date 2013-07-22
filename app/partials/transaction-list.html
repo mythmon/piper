@@ -7,37 +7,42 @@
   </div>
 </div>
 
-<div class="row spaced">
-  <div class="small-12 columns">
-    <table class="table small-12 columns">
+<ul class="transaction-list">
+  <li class="row header">
+    <div class="small-2 columns">When</div>
+    <div class="small-3 columns">Where</div>
+    <div class="small-7 columns">
+      <div class=" row">
+        <div class="small-3 columns">Amount 
+        </div><div class="small-3 columns">Note
+        </div><div class="small-6 columns">
+          Category</div>
+      </div>
+    </div></li>
 
-      <thead>
-        <tr>
-          <th>
-            When <sort-toggle name="orderProp" value="purchase_date" />
-          </th>
-          <th>
-            Where <sort-toggle name="orderProp" value="merchant" />
-          </th>
-          <th>
-            Amount <sort-toggle name="orderProp" value="amount" />
-          </th>
-          <th>
-            Category <sort-toggle name="orderProp" value="category" />
-          </th>
-        </tr>
-      </thead>
+  <li class="row" ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
+    <div class="small-2 columns">
+      {{ trans.purchase_date | date }}
+    </div>
+    <div class="small-3 columns">
+      {{ trans.merchant }}
+    </div>
 
-      <tbody>
-        <tr ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
-          <td>{{trans.purchase_date | date}}</td>
-          <td>
-            <a href="/transaction/{{ trans.id }}">{{trans.merchant}}</a>
-          </td>
-          <td>{{trans.total | currency}}</td>
-        </tr>
-      </tbody>
-
-    </table>
+    <div class="small-7 columns">
+      <ul>
+        <li class="row" ng-repeat="split in trans.splits">
+          <div class="small-3 columns">
+            {{ split.amount | currency }}
+          </div>
+          <div class="small-3 columns">
+            {{ split.note }}
+          </div>
+          <div class="small-6 columns">
+            <span class="tag" ng-repeat="cat in split.categories">
+              {{ cat.name }}
+            </span>
+          </div>
+        </li>
+      </ul>
+    </div>
   </div>
-</div>
