@@ -29,7 +29,7 @@ module.directive('sortToggle', function() {
 });
 
 
-/* Transforms an ngModel controlled date input to return seconds since the
+/* Transforms an ngModel controlled date input to return milliseconds since the
  * epoch when querying it in JS. */
 module.directive('unixTime', function() {
   var format = 'YYYY-MM-DD';
@@ -37,34 +37,30 @@ module.directive('unixTime', function() {
   return {  
     restrict: 'A',
     require: 'ngModel',
-    link: function(scope, element, attrs, ngModel) {
+    link: function($scope, element, attrs, ngModel) {
       ngModel.$render = function() {
         toString();
       }
 
-      function toUnix() {
+      function toInt() {
         var timestamp = moment(element.val(), format);
-        if (timestamp === null) {
-          ngModel.$setViewValue(null);
-        } else {
-          ngModel.$setViewValue(timestamp.unix());
+        if (timestamp !== null) {
+          ngModel.$setViewValue(+timestamp);
         }
       }
 
       function toString() {
-        if (ngModel.$viewValue === null) {
-          element.val('');
-        } else {
-          var timestamp = moment.unix(ngModel.$viewValue);
+        if (ngModel.$viewValue !== null) {
+          var timestamp = moment(ngModel.$viewValue);
           element.val(timestamp.format(format));
         }
       }
 
       element.bind('blur keyup change', function() {
-        scope.$apply(toUnix);
+        $scope.$apply(toInt);
       });
 
-      toUnix();
+      toString();
     }
   };
 });
@@ -75,8 +71,38 @@ module.directive('fortnight', function() {
 
   return {
     restrict: 'A',
-    require: '?ngModel',
+    require: 'ngModel',
   };
 });
+
+
+module.directive('tags', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+
+    link: function(scope, element, attrs, ngModel) {
+      ngModel.$render = function() {
+        toString();
+      }
+
+      function toModel() {
+        var val = element.val();
+        var tags = val.split(/\s*,\s*/);
+        ngModel.$setViewValue(_.map(tags, function(t) { return {name: t}; }));
+      }
+
+      function toString() {
+        var tags = _.pluck(ngModel.$viewValue, 'name');
+        element.val(tags.join(', '));
+      }
+
+      element.bind('blur keyup change', function() {
+        scope.$apply(toModel);
+      });
+    }
+  };
+});
+
 
 })();

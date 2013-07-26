@@ -1,9 +1,12 @@
 <div class="row spaced">
-  <div class="small-5 columns">
+  <div class="small-6 columns">
     <div>
       <i class="icon-search"></i> Search:
       <input class="small-12 columns" ng-model="query">
     </div>
+  </div>
+  <div class="small-1 columns">
+    <button ng-click="addNew()">Add</button>
   </div>
 </div>
 
@@ -18,31 +21,46 @@
         </div><div class="small-6 columns">
           Category</div>
       </div>
-    </div></li>
+    </div>
+  </li>
 
-  <li class="row" ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
-    <div class="small-2 columns">
-      {{ trans.purchase_date | date }}
-    </div>
-    <div class="small-3 columns">
-      {{ trans.merchant }}
+  <li class="row transaction"
+      ng-controller="TransactionRow"
+      ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
+
+    <div class="display" ng-show="!editing">
+      <div class="small-2 columns">
+        {{ trans.purchase_date | date:'yyyy-MM-dd' }}
+      </div>
+      <div class="small-3 columns">
+        {{ trans.merchant }}
+      </div>
+
+      <div class="small-7 columns">
+        <ul>
+          <li class="row" ng-repeat="split in trans.splits | filter:query">
+            <div class="small-3 columns">
+              {{ split.amount | currency }}
+            </div>
+            <div class="small-3 columns">
+              {{ split.note }}
+            </div>
+            <div class="small-6 columns">
+              <span class="tag" ng-repeat="cat in split.categories">
+                {{ cat.name }}
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
     </div>
 
-    <div class="small-7 columns">
-      <ul>
-        <li class="row" ng-repeat="split in trans.splits">
-          <div class="small-3 columns">
-            {{ split.amount | currency }}
-          </div>
-          <div class="small-3 columns">
-            {{ split.note }}
-          </div>
-          <div class="small-6 columns">
-            <span class="tag" ng-repeat="cat in split.categories">
-              {{ cat.name }}
-            </span>
-          </div>
-        </li>
-      </ul>
+    <div ng-show="editing" ng-include="'/static/partials/transaction-add.html?bust=13'"></div>
+
+    <div class="action-bar">
+      <i class="edit pencil icon" ng-click="edit()" ng-show="!editing"></i>
+      <i class="done check icon" ng-click="edit()" ng-show="editing"></i>
+      <i class="delete ex icon" ng-click="delete()"></i>
     </div>
-  </div>
+  </li>
+</ul>

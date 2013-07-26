@@ -1,48 +1,41 @@
-<div class="row spaced">
+<div class="row">
   <div class="small-9 columns">
 
     <form>
-      <fieldset>
-        <legend>Add Transaction</legend>
-        <div class="row">
-          <div class="small-3 columns">
-            <label>Date</label>
-            <input type="date" fortnight unix-time ng-model="trans.purchase_date" required/>
-          </div>
-          <div class="small-9 columns">
-            <label>Where</label>
-            <input type="text" ng-model="trans.merchant" required/>
-          </div>
+      <div class="row">
+        <div class="small-3 columns">
+          <label>Date</label>
+          <input type="date" fortnight unix-time ng-model="trans.purchase_date" required/>
         </div>
-
-        <div class="row">
-          <div class="small-5 columns">
-            <label>What</label>
-          </div>
-          <div class="small-3 columns">
-            <label>Cost</label>
-          </div>
-          <div class="small-4 columns">
-            <label>Categories</label>
-          </div>
+        <div class="small-9 columns">
+          <label>Where</label>
+          <input type="text" ng-model="trans.merchant" required/>
         </div>
+      </div>
 
-        <div class="row" ng-repeat="split in trans.splits">
-          <div class="small-5 columns">
-            <input type="text" ng-model="split.note"/>
-          </div>
-          <div class="small-2 columns">
-            <input type="text" ng-model="split.amount"/>
-          </div>
-          <div class="small-5 columns">
-            <input type="text" ng-model="split.categories"/>
-          </div>
+      <div class="row">
+        <div class="small-5 columns">
+          <label>What</label>
         </div>
+        <div class="small-3 columns">
+          <label>Cost</label>
+        </div>
+        <div class="small-4 columns">
+          <label>Categories</label>
+        </div>
+      </div>
 
-        <button class="tiny" ng-click="create()">Add</button>
-      </fieldset>
-
-      {{ trans }}
+      <div class="row" ng-repeat="split in trans.splits">
+        <div class="small-5 columns">
+          <input type="text" ng-model="split.note"/>
+        </div>
+        <div class="small-2 columns">
+          <input type="text" ng-model="split.amount"/>
+        </div>
+        <div class="small-5 columns">
+          <input type="text" ng-model="split.categories" tags/>
+        </div>
+      </div>
     </form>
   </div>
 </div>

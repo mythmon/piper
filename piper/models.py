@@ -20,7 +20,7 @@ class Transaction(Model):
     merchant = Column(String(128))
     purchase_date = Column(DateTime, nullable=False)
     created = Column(DateTime, default=datetime.utcnow)
-    splits = relationship('Split', backref='transaction')
+    splits = relationship('Split', backref='transaction', cascade='all,delete')
 
     def __init__(self, **kwargs):
         for field in ['purchase_date', 'created']:
@@ -40,6 +40,33 @@ class Transaction(Model):
         data = super(Transaction, self).serialize()
         data['splits'] = self.splits
         return data
+
+    @utils.with_db
+    def update(self, db, **kwargs):
+        splits_raw = kwargs.pop('splits', [])
+        kwargs['splits'] = []
+
+        for split_raw in splits_raw:
+            if split_raw.get('id') is None:
+                s = Split(split_raw)
+                kwargs['splits'].append(s)
+                db.add(s);
+            else:
+                s = db.query(Split).filter(Split.id == split_raw['id']).one()
+                s.update(**split_raw)
+                kwargs['splits'].append(s)
+                db.add(s)
+
+        for field in ['purchase_date', 'created']:
+            if field in kwargs:
+                kwargs[field] = utils.coerce_datetime(kwargs[field])
+
+        super(Transaction, self).update(**kwargs)
+
+    @classmethod
+    def column_whitelist(cls):
+        whitelist = super(Transaction, cls).column_whitelist()
+        return whitelist + ['splits']
 
 split_category_table = Table(
     'association',
@@ -64,7 +91,7 @@ class Split(Model):
         real_categories = []
 
         for c in kwargs.pop('categories', []):
-            real_categories.append(Category.get(c, create=True))
+            real_categories.append(Category.get(c))
 
         super(Split, self).__init__(categories=real_categories, **kwargs)
 
@@ -72,6 +99,18 @@ class Split(Model):
         data = super(Split, self).serialize()
         data['categories'] = self.categories
         return data
+
+    @classmethod
+    def column_whitelist(cls):
+        whitelist = super(Split, cls).column_whitelist()
+        return whitelist + ['categories']
+
+    def update(self, **kwargs):
+        if 'categories' in kwargs:
+            kwargs['categories'] = [Category.get(name)
+                                    for name in kwargs['categories']]
+        super(Split, self).update(**kwargs)
+
 
 
 class Category(Model):
@@ -103,7 +142,7 @@ class Category(Model):
 
     @classmethod
     @utils.with_db
-    def get(cls, spec, create=False, db=None):
+    def get(cls, spec, create=True, db=None):
         """Get a category that matches `spec`.
 
         `spec` is something like 'foo/bar/baz', or ['foo', 'bar', 'baz'].
@@ -121,6 +160,10 @@ class Category(Model):
             spec = filter(None, spec.split('/'))
         if not spec:
             return None
+        if isinstance(spec, dict):
+            spec = [spec['name']]
+        if isinstance(spec[0], dict):
+            spec = [c['name'] for c in spec]
 
         parent = cls.get(spec[:-1], create)
         try:

@@ -22,6 +22,11 @@ def coerce_datetime(input):
             pass
 
     if isinstance(input, Number):
+        # This is ~ 1971 in millisecond format, and ~ 2969 in seconds
+        # format. It makes a lot more sense to considers numbers over this
+        # to be in millisecond format.
+        if input > 3.15e10:
+            input /= 1000
         return datetime.fromtimestamp(input)
 
     raise NotImplementedError

@@ -92,9 +92,10 @@ class ModelView(MethodView):
         data = request.get_json()
         inst = db.query(self.model).filter(self.model.id == id).one()
         try:
-            inst.update(data)
-        except TypeError:
-            return make_response(('', 403, {}))
+            inst.update(**data)
+        except TypeError as e:
+            raise
+            return make_response((str(e), 403, {}))
         db.add(inst)
         db.commit()
 

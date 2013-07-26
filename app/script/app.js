@@ -30,12 +30,6 @@ piper.config(['$routeProvider', '$locationProvider',
 piper.config(['RestangularProvider',
   function(RestangularProvider) {
     RestangularProvider.setBaseUrl('/api');
-
-    RestangularProvider.addElementTransformer('transaction', false, function(transaction) {
-      function add(a, b) { return a + b; };
-      transaction.total = _.reduce(_.pluck(transaction.splits, 'amount'), add);
-      return transaction;
-    });
   }
 ]);
 

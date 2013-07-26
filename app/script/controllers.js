@@ -5,42 +5,77 @@ var piper = angular.module('piper');
 piper.controller('TransactionListCtrl', ['$scope', 'Restangular',
   function TransactionListCtrl($scope, Restangular) {
     $scope.transactions = Restangular.all('transaction').getList();
-    $scope.orderProp = 'date';
-  }]);
+    $scope.orderProp = ['-purchase_date','-id'];
+
+    $scope.addNew = function() {
+      $scope.transactions.then(function(transactions) {
+        transactions.unshift({
+          purchase_date: +moment().startOf('day'),
+          splits: [],
+          editing: true,
+        });
+      })
+    };
+  }
+]);
 
 
 piper.controller('TransactionDetailCtrl', ['$scope', '$routeParams', 'Restangular',
   function($scope, $routeParams, Restangular) {
     $scope.trans = Restangular.one('transaction', $routeParams.id).get();
-  }]);
+  }
+]);
 
 
-piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Restangular',
-  function($scope, $routeParams, Restangular) {
-    $scope.trans = {
-      splits: [{}]
-    };
+piper.controller('TransactionRow', ['$scope', 'Restangular',
+  function($scope, Restangular) {
+    $scope.editing = !!$scope.trans.editing;
+    delete $scope.trans.editing;
+    $scope.$watch('trans.splits', update, true);
+    update();
 
-    $scope.create = function() {
-      var trans = $.extend(true, {}, $scope.trans);
-      var i = 0;
+    $scope.edit = function() {
+      $scope.editing = !$scope.editing;
+      update();
 
-      for (i = trans.splits.length - 1; i >= 0; i--) {
-        if (splitIsEmpty(trans.splits[i])) {
-          trans.splits.splice(i, 1);
-          continue;
-        }
-
-        trans.splits[i].categories  = trans.splits[i].categories.split(',');
+      if (!$scope.editing) {
+        $scope.save();
       }
-
-      Restangular.all('transaction').post(trans);
     }
 
-    $scope.$watch('trans', function() {
-      var i, split;
+    $scope.save = function() {
+      if ($scope.trans.id === undefined) {
+        Restangular.all('transaction').post($scope.trans).then(function(resp) {
+          $scope.trans = resp;
+        });
+      } else {
+        $scope.trans.put();
+      }
+    }
+
+    $scope.delete = function() {
+      function removeLocal() {
+        $scope.transactions.then(function(transactions) {
+          var i = transactions.indexOf($scope.trans);
+          if (i !== -1) {
+            transactions.splice(i, 1);
+          }
+        });
+      }
+
+      if ($scope.trans.id !== undefined) {
+        $scope.trans.remove().then(removeLocal)
+      } else {
+        removeLocal();
+      }
+    }
+
+    function update() {
+      var i;
+      var split;
       var length = $scope.trans.splits.length;
       var fullRows = 0;
+      var target;
 
       for (i = 0; i < length; i++) {
         split = $scope.trans.splits[i];
@@ -49,13 +84,18 @@ piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Restangular',
         }
       }
 
-      if (fullRows === length) {
-        $scope.trans.splits.push({});
-        length++;
+      if ($scope.editing) {
+        if (fullRows === length) {
+          $scope.trans.splits.push({});
+          length++;
+        }
+        target = 1;
+      } else {
+        target = 0;
       }
 
       i = length - 1;
-      while (length - fullRows > 1) {
+      while (length - fullRows > target) {
         split = $scope.trans.splits[i];
         if (splitIsEmpty(split)) {
           $scope.trans.splits.splice(i, 1);
@@ -64,12 +104,12 @@ piper.controller('TransactionAddCtrl', ['$scope', '$routeParams', 'Restangular',
           i--;
         }
       }
-    }, true);
+    }
 
     function splitIsEmpty(split) {
       return !split.note && !split.amount && !split.categories;
     }
-    $scope.splitIsEmpty = splitIsEmpty;
-  }]);
+ }
+]);
 
 })();

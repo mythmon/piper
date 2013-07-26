@@ -18,11 +18,14 @@ class _BaseModel(object):
     def update(self, **kwargs):
         whitelist = self.column_whitelist()
 
-        if any(lambda k: k not in whitelist, kwargs.keys()):
-            raise TypeError('{0} is an invalid keyword argument for {1}'
-                            .format(key, self.__class__.__name__))
+        for key in kwargs.keys():
+            if key not in whitelist:
+                raise TypeError(
+                    '{0} is an invalid keyword argument for {1}. '
+                    'Valid choices are {2}'
+                    .format(key, self.__class__.__name__, whitelist))
 
-        for key ,val in kwargs.items():
+        for key, val in kwargs.items():
             setattr(self, key, val)
 
     @classmethod
