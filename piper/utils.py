@@ -1,9 +1,10 @@
+import json
 from datetime import datetime
 from decimal import Decimal
 from numbers import Number
 from functools import wraps
 
-from flask import current_app
+from flask import current_app, make_response
 
 import sqlalchemy
 
@@ -48,3 +49,24 @@ def with_db(f):
         db = get_session(current_app)
         return f(*args, db=db, **kwargs)
     return wrapper
+
+
+def json_dumps(obj):
+    if isinstance(obj, basestring):
+        return obj
+
+    def to_json_patch(obj):
+        if hasattr(obj, 'for_json'):
+            return obj.for_json()
+        raise TypeError
+
+    return json.dumps(obj, default=to_json_patch)
+
+
+def json_response(obj, status=200, headers={}):
+    body = json_dumps(obj)
+    real_headers = {
+        'Content-Type': 'application/json; charset=UTF-8',
+    }
+    real_headers.update(headers)
+    return make_response((body, status, real_headers))

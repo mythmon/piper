@@ -20,27 +20,6 @@ class ModelView(MethodView):
     model = None
 
     @classmethod
-    def _json_dumps(cls, obj):
-        if isinstance(obj, basestring):
-            return obj
-
-        def to_json_patch(obj):
-            if hasattr(obj, 'for_json'):
-                return obj.for_json()
-            raise TypeError
-
-        return json.dumps(obj, default=to_json_patch)
-
-    @classmethod
-    def _jsonify(cls, obj, status=200, headers={}):
-        body = cls._json_dumps(obj)
-        real_headers = {
-            'Content-Type': 'application/json; charset=UTF-8',
-        }
-        real_headers.update(headers)
-        return make_response((body, status, real_headers))
-
-    @classmethod
     def url(cls, id=None):
         name = cls.__name__.lower()
         name = re.sub(r'view$', '', name)
@@ -59,14 +38,14 @@ class ModelView(MethodView):
     def get_one(self, id, db):
         try:
             inst = db.query(self.model).filter(self.model.id == id).one()
-            return self._jsonify(inst)
+            return utils.json_response(inst)
         except NoResultFound:
             return make_response(('', 404, {}))
 
     @utils.with_db
     def get_list(self, db):
         inst_list = db.query(self.model).all()
-        return self._jsonify(inst_list)
+        return utils.json_response(inst_list)
 
     @utils.with_db
     def post(self, db):
@@ -75,7 +54,7 @@ class ModelView(MethodView):
         db.add(inst)
         db.commit()
 
-        return self._jsonify(inst, 201, {
+        return utils.json_response(inst, 201, {
             'Location': blueprint.url_prefix + self.url(inst.id)
         })
 
@@ -99,7 +78,7 @@ class ModelView(MethodView):
         db.add(inst)
         db.commit()
 
-        return self._jsonify(inst, 200, {
+        return utils.json_response(inst, 200, {
             'Location': blueprint.url_prefix + self.url(inst.id)
         })
 

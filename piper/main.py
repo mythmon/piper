@@ -5,7 +5,7 @@ from flask import Flask
 from live_stylus import ConvStylus
 from werkzeug.utils import ImportStringError
 
-from piper import api, angular
+from piper import api, angular, search
 
 
 def create_app():
@@ -23,6 +23,7 @@ def create_app():
     ConvStylus('app/style')
 
     app.register_blueprint(api.blueprint)
+    app.register_blueprint(search.blueprint)
     app.register_blueprint(angular.blueprint)
 
     return app

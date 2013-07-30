@@ -81,24 +81,40 @@ module.directive('tags', function() {
     restrict: 'A',
     require: 'ngModel',
 
-    link: function(scope, element, attrs, ngModel) {
-      ngModel.$render = function() {
-        toString();
-      }
+    link: function(scope, element, attrs, ctrl) {
+      ctrl.$parsers.push(function(value) {
+        return _.map(value.split(/\s*,\s*/), function(t) {
+          return {name: t};
+        });
+      });
 
-      function toModel() {
-        var val = element.val();
-        var tags = val.split(/\s*,\s*/);
-        ngModel.$setViewValue(_.map(tags, function(t) { return {name: t}; }));
-      }
+      ctrl.$formatters.push(function(value) {
+        return _.pluck(value, 'name').join(', ');
+      });
+    }
+  };
+});
 
-      function toString() {
-        var tags = _.pluck(ngModel.$viewValue, 'name');
-        element.val(tags.join(', '));
-      }
 
-      element.bind('blur keyup change', function() {
-        scope.$apply(toModel);
+module.directive('parsedSearch', function() {
+  return {
+    restrict: 'A',
+    require: 'ngModel',
+
+    link: function(scope, element, attrs, ctrl) {
+      ctrl.$parsers.push(function(value) {
+        if (value == '') {
+          ctrl.$setValidity('parsed-search', true)
+          return null
+        }
+        try {
+          ctrl.$setValidity('parsed-search', true)
+          return searchParser(value);
+        } catch (e) {
+          ctrl.$setValidity('parsed-search', false)
+          ctrl.$error['parsed-search'] = e;
+          return undefined;
+        }
       });
     }
   };

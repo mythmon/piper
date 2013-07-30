@@ -1,12 +1,27 @@
-<div class="row spaced">
-  <div class="small-6 columns">
-    <div>
-      <i class="icon-search"></i> Search:
-      <input class="small-12 columns" ng-model="query">
+<form name="search">
+  <div class="row spaced">
+    <div class="small-6 columns">
+      <label>
+        <i class="icon search"></i> Search
+      </label>
+      <input type="text" name="q" parsed-search ng-model="query"
+        ng-class="{error: search.q.$invalid}">
+    </div>
+    <div class="small-5 columns">
+      <small ng-show="search.q.$invalid" ng-repeat="e in search.q.$error">
+        Error: {{ e }}
+      </small>
+      <small>{{ query }}</small>
+    </div>
+    <div class="small-1 columns">
+      <button ng-click="addNew()">Add</button>
     </div>
   </div>
-  <div class="small-1 columns">
-    <button ng-click="addNew()">Add</button>
+</form>
+
+<div class="row">
+  <div class="small-12 columns">
+    {{ searchResult }}
   </div>
 </div>
 
@@ -26,7 +41,7 @@
 
   <li class="row transaction"
       ng-controller="TransactionRow"
-      ng-repeat="trans in transactions | filter:query | orderBy:orderProp">
+      ng-repeat="trans in transactions | orderBy:orderProp">
 
     <div class="display" ng-show="!editing">
       <div class="small-2 columns">
@@ -38,7 +53,7 @@
 
       <div class="small-7 columns">
         <ul>
-          <li class="row" ng-repeat="split in trans.splits | filter:query">
+          <li class="row" ng-repeat="split in trans.splits">
             <div class="small-3 columns">
               {{ split.amount | currency }}
             </div>

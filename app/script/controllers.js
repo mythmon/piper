@@ -2,9 +2,11 @@
 
 var piper = angular.module('piper');
 
-piper.controller('TransactionListCtrl', ['$scope', 'Restangular',
-  function TransactionListCtrl($scope, Restangular) {
-    $scope.transactions = Restangular.all('transaction').getList();
+piper.controller('TransactionListCtrl', ['$scope', '$http', 'Restangular',
+  function TransactionListCtrl($scope, $http, Restangular) {
+    var originalTransactions = Restangular.all('transaction').getList();
+
+    $scope.transactions = originalTransactions;
     $scope.orderProp = ['-purchase_date','-id'];
 
     $scope.addNew = function() {
@@ -16,6 +18,27 @@ piper.controller('TransactionListCtrl', ['$scope', 'Restangular',
         });
       })
     };
+
+    var searchTimeout = null;
+    $scope.watch('query', function(key, oldVal, newVal) {
+      if (searchTimeout !== null) {
+        clearTimeout(searchTimeout);
+      }
+      searchTimeout = setTimeout(search, 250);
+      return newVal;
+    });
+
+    function search() {
+      searchTimeout = null;
+
+      if ($scope.query) {
+        $http.post('/search', $scope.query).then(function(res) {
+          $scope.transactions = res.data;
+        });
+      } else {
+        $scope.transactions = originalTransactions;
+      }
+    }
   }
 ]);
 
