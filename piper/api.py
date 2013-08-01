@@ -4,6 +4,7 @@ import re
 from flask import Blueprint, Response, request, current_app, make_response
 from flask.views import MethodView
 
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import class_mapper, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -71,12 +72,14 @@ class ModelView(MethodView):
         data = request.get_json()
         inst = db.query(self.model).filter(self.model.id == id).one()
         try:
-            inst.update(**data)
-        except TypeError as e:
+            inst.update(db=db, **data)
+            db.add(inst)
+            db.commit()
+        except IntegrityError:
+            db.rollback()
             raise
+        except TypeError as e:
             return make_response((str(e), 403, {}))
-        db.add(inst)
-        db.commit()
 
         return utils.json_response(inst, 200, {
             'Location': blueprint.url_prefix + self.url(inst.id)

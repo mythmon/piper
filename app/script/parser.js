@@ -50,7 +50,7 @@
   }
 
   function parseValue(stream) {
-    var valueClass = charClass('a-z', 'A-Z', '0-9', '-', '_', '.');
+    var valueClass = charClass('a-z', 'A-Z', '0-9', '-', '_', '.', '/');
     var token = stream.expect(valueClass.concat(['"']));
     var value = '';
 

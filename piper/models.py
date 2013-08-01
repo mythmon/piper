@@ -32,7 +32,7 @@ class Transaction(Model):
             if isinstance(s, Split):
                 real_splits.append(s)
             else:
-                real_splits.append(Split(**s))
+                real_splits.append(Split(transaction=self, **s))
 
         super(Transaction, self).__init__(splits=real_splits, **kwargs)
 
@@ -48,7 +48,7 @@ class Transaction(Model):
 
         for split_raw in splits_raw:
             if split_raw.get('id') is None:
-                s = Split(split_raw)
+                s = Split(transaction=self, **split_raw)
                 kwargs['splits'].append(s)
                 db.add(s);
             else:
@@ -88,12 +88,9 @@ class Split(Model):
     categories = relationship('Category', secondary=split_category_table)
 
     def __init__(self, **kwargs):
-        real_categories = []
-
-        for c in kwargs.pop('categories', []):
-            real_categories.append(Category.get(c))
-
-        super(Split, self).__init__(categories=real_categories, **kwargs)
+        kwargs['categories'] = [Category.get(c)
+                                for c in kwargs.get('categories', [])]
+        super(Split, self).__init__(**kwargs)
 
     def serialize(self):
         data = super(Split, self).serialize()
@@ -141,6 +138,14 @@ class Category(Model):
         return data
 
     @classmethod
+    def _coerce(cls, spec):
+        if isinstance(spec, basestring):
+            return spec.split('/')
+        if isinstance(spec, dict) and 'name' in spec:
+            return cls._coerce(spec['name'])
+        return spec
+
+    @classmethod
     @utils.with_db
     def get(cls, spec, create=True, db=None):
         """Get a category that matches `spec`.
@@ -154,27 +159,34 @@ class Category(Model):
         `sqlalchemy.orm.exc.NoResultFound` error will be raised.
         """
 
-        if isinstance(spec, cls):
-            return spec
-        if isinstance(spec, basestring):
-            spec = filter(None, spec.split('/'))
-        if not spec:
-            return None
-        if isinstance(spec, dict):
-            spec = [spec['name']]
-        if isinstance(spec[0], dict):
-            spec = [c['name'] for c in spec]
+        spec = cls._coerce(spec)
+        if not isinstance(spec, list):
+            raise TypeError("%s isn't right, it is a %s" % (spec, type(spec)))
 
-        parent = cls.get(spec[:-1], create)
         try:
-            cat = db.query(cls).filter(cls.name == spec[-1]).one()
+            cat = (db.query(Category)
+                     .filter(Category.name == spec[0], Category.parent == None))
+            for n in spec[1:]:
+                cat = (db.query(Category).filter(Category.name == n,
+                                                 Category.parent == cat.one()))
+            cat = cat.one()
         except NoResultFound:
             if create:
-                cat = Category(name=spec[-1])
-                if parent:
-                    parent.subcategories.append(cat)
-                db.add(cat)
+                parent = None
+                for n in spec:
+                    cat = (db.query(Category)
+                             .filter(Category.name == n,
+                                     Category.parent == parent)
+                             .all())
+                    if len(cat) == 0:
+                        cat = Category(name=n, parent=parent)
+                        db.add(cat)
+                    else:
+                        cat = cat[0]
+                    parent = cat
             else:
                 raise
+
+        db.commit()
 
         return cat

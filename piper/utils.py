@@ -46,8 +46,9 @@ class DecimalString(sqlalchemy.types.TypeDecorator):
 def with_db(f):
     @wraps(f)
     def wrapper(*args, **kwargs):
-        db = get_session(current_app)
-        return f(*args, db=db, **kwargs)
+        if 'db' not in kwargs:
+            kwargs['db'] = get_session()
+        return f(*args, **kwargs)
     return wrapper
 
 
