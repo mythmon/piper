@@ -1,6 +1,6 @@
-bin/
-include/
-lib/
-node_modules/
+/bin/
+/include/
+/lib/
+/node_modules/
 app/style/*.css
 piper/settings/local.py
