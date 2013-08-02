@@ -54,11 +54,7 @@ def S_contains_tag(val):
         all_cats.append(cat)
         stack.update(cat.subcategories)
 
-    import q
-    q(list(c.name for c in all_cats))
-
-    return Category.id.in_(c.id for c in all_cats)
-
+    return Split.categories.any(Category.id.in_(c.id for c in all_cats))
 
 def S_and(args):
     return reduce(operator.and_, (S_actions(a) for a in args))
