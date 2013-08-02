@@ -20,9 +20,11 @@ def search(db):
 
     splits = S(query).all()
     transactions = set(s.transaction for s in splits)
+    transactions = [t.for_json() for t in transactions]
 
     for t in transactions:
-        t.splits = filter(lambda s: s in splits, t.splits)
+        t['splits'] = [s.for_json()
+                       for s in filter(lambda s: s in splits, t['splits'])]
 
     res = utils.json_response(list(transactions))
     db.rollback()

@@ -20,7 +20,7 @@ piper.controller('TransactionListCtrl', ['$scope', '$http', 'Restangular',
     };
 
     var searchTimeout = null;
-    $scope.watch('query', function(key, oldVal, newVal) {
+    $scope.$watch('query', function(key, oldVal, newVal) {
       if (searchTimeout !== null) {
         clearTimeout(searchTimeout);
       }

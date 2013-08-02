@@ -59,7 +59,7 @@ def json_dumps(obj):
     def to_json_patch(obj):
         if hasattr(obj, 'for_json'):
             return obj.for_json()
-        raise TypeError
+        raise TypeError('unknown type for json formatting: %s' % type(obj))
 
     return json.dumps(obj, default=to_json_patch)
 

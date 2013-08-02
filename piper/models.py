@@ -85,7 +85,8 @@ class Split(Model):
     amount = Column(utils.DecimalString(Numeric(15, 2)))
     transaction_id = Column(Integer, ForeignKey('transaction.id'),
                             nullable=False)
-    categories = relationship('Category', secondary=split_category_table)
+    categories = relationship('Category', secondary=split_category_table,
+                              lazy='join')
 
     def __init__(self, **kwargs):
         kwargs['categories'] = [Category.get(c)
