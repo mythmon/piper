@@ -6,7 +6,7 @@
   }
 
   function parseSearch(stream) {
-    return pickRule(stream, [parseNot, parseBoolean, parseAction]);
+    return pickRule(stream, [parseBoolean, parseNot, parseAction]);
   }
 
   function parseAction(stream) {
@@ -73,7 +73,7 @@
   }
 
   function parseBoolean(stream) {
-    var left = parseAction(stream);
+    var left = pickRule(stream, [parseNot, parseAction], false);
     stream.accept([' ']);
     var op = stream.expect(['AND', 'OR']);
     stream.accept([' ']);
