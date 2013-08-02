@@ -6,7 +6,7 @@
   }
 
   function parseSearch(stream) {
-    return pickRule(stream, [parseBoolean, parseAction]);
+    return pickRule(stream, [parseNot, parseBoolean, parseAction]);
   }
 
   function parseAction(stream) {
@@ -82,6 +82,16 @@
     var ret = {};
     ret[op.toLowerCase()] = [left, right];
     return ret;
+  }
+
+  function parseNot(stream) {
+    stream.expect(['NOT']);
+    stream.accept([' ']);
+    var target = parseAction(stream);
+
+    return {
+      'not': target
+    }
   }
 
 

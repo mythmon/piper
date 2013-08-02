@@ -64,9 +64,14 @@ def S_or(args):
     return reduce(operator.or_, (S_actions(a) for a in args))
 
 
+def S_not(args):
+    return ~S_actions(args)
+
+
 S_parts = {
     'contains': S_contains,
     'and': S_and,
     'or': S_or,
+    'not': S_not,
     'contains_tag': S_contains_tag,
 }
