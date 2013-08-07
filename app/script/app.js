@@ -25,6 +25,11 @@ piper.config(['$routeProvider', '$locationProvider',
         controller: 'BudgetListCtrl'
       })
 
+      .when('/budget/audit', {
+        templateUrl: TMPL_BASE + '/budget-audit.html',
+        controller: 'BudgetAuditCtrl'
+      })
+
       .otherwise({redirectTo: '/transactions'});
   }
 ]);

@@ -1,0 +1,62 @@
+<h1>Budget Audit</h1>
+
+<ul class="object-list">
+  <li class="row header">
+    <div class="small-2 columns">When</div>
+    <div class="small-2 columns">Where</div>
+    <div class="small-8 columns">
+      <div class=" row">
+        <div class="small-2 columns">Amount</div>
+        <div class="small-3 columns">Note</div>
+        <div class="small-5 columns">Category</div>
+        <div class="small-2 columns">Budgets</div>
+      </div>
+    </div>
+  </li>
+
+  <li class="row object"
+      ng-controller="TransactionRow"
+      ng-repeat="trans in transactions | orderBy:orderProp">
+
+    <div class="display" ng-show="!editing">
+      <div class="small-2 columns">
+        {{ trans.purchase_date | date:'yyyy-MM-dd' }}
+      </div>
+      <div class="small-2 columns">
+        {{ trans.merchant }}
+      </div>
+
+      <div class="small-8 columns">
+        <ul>
+          <li class="row" ng-repeat="split in trans.splits">
+            <div class="small-2 columns">
+              {{ split.amount | currency }}
+            </div>
+            <div class="small-3 columns">
+              {{ split.note }}
+            </div>
+            <div class="small-4 columns">
+              <span class="tag" ng-repeat="cat in split.categories">
+                {{ cat.name }}
+              </span>
+            </div>
+            <div class="small-3 columns">
+              <span ng-hide="split.budget_match.length != 0">None</span>
+              <span ng-repeat="b in split.budget_match">
+                {{ b.name }},
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div ng-show="editing" ng-include="'/static/partials/transaction-add.html?bust=13'"></div>
+
+    <div class="action-bar">
+      <i class="edit pencil icon" ng-click="edit()" ng-show="!editing"></i>
+      <i class="done check icon" ng-click="edit()" ng-show="editing"></i>
+      <i class="delete ex icon" ng-click="delete()"></i>
+    </div>
+  </li>
+</ul>
