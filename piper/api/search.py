@@ -13,7 +13,7 @@ from piper.models.transactions import Transaction, Split, Category
 @utils.with_db
 def search(db):
     query = request.get_json() or {}
-    transactions = S(query).all()
+    transactions = S(query)
     return utils.json_response(list(transactions))
 
 
