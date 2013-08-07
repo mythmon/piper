@@ -52,20 +52,20 @@ def with_db(f):
     return wrapper
 
 
-def json_dumps(obj):
+def json_dumps(obj, detail=False):
     if isinstance(obj, basestring):
         return obj
 
     def to_json_patch(obj):
         if hasattr(obj, 'for_json'):
-            return obj.for_json()
+            return obj.for_json(detail=detail)
         raise TypeError('unknown type for json formatting: %s' % type(obj))
 
     return json.dumps(obj, default=to_json_patch)
 
 
-def json_response(obj, status=200, headers={}):
-    body = json_dumps(obj)
+def json_response(obj, status=200, headers={}, detail=False):
+    body = json_dumps(obj, detail=detail)
     real_headers = {
         'Content-Type': 'application/json; charset=UTF-8',
     }

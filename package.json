@@ -11,7 +11,8 @@
         "url": "git://github.com/mythmon/piper.git"
     },
     "dependencies": {
-        "stylus": "0.33.1"
+        "stylus": "0.33.1",
+        "axis-css": "0.0.3"
     },
     "engines": {
         "node": ">=0.10.0",

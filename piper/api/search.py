@@ -2,38 +2,36 @@ import operator
 
 from flask import Blueprint, request
 
+from sqlalchemy.orm import joinedload
+
 from piper import utils
-from piper.models import Split, Category
-
-blueprint = Blueprint('search', __name__, url_prefix='/search')
-
-
-@blueprint.route('/ping', methods=['GET', 'SEARCH'])
-def ping():
-    return 'pong'
+from piper.api import blueprint
+from piper.models.transactions import Transaction, Split, Category
 
 
-@blueprint.route('/', methods=['GET', 'POST'])
+@blueprint.route('/search', methods=['GET', 'POST'])
 @utils.with_db
 def search(db):
     query = request.get_json() or {}
+    transactions = S(query).all()
+    return utils.json_response(list(transactions))
 
-    splits = S(query).all()
+
+@utils.with_db
+def S(query, db):
+    splits = (db.query(Split)
+              .join(Split.categories)
+              .options(joinedload(Split.transaction))
+              .filter(S_actions(query)))
     transactions = set(s.transaction for s in splits)
     transactions = [t.for_json() for t in transactions]
 
     for t in transactions:
         t['splits'] = [s.for_json()
                        for s in filter(lambda s: s in splits, t['splits'])]
-
-    res = utils.json_response(list(transactions))
     db.rollback()
-    return res
 
-
-@utils.with_db
-def S(query, db):
-    return db.query(Split).join(Split.categories).filter(S_actions(query))
+    return transactions
 
 
 def S_actions(query):

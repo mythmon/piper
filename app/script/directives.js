@@ -121,4 +121,38 @@ module.directive('parsedSearch', function() {
 });
 
 
+module.directive('d3BudgetProgress', function() {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope: {
+      current: '@',
+      max: '@'
+    },
+
+    template:
+      '<div class="progress-bar">' +
+        '<div class="inner"></div>' +
+      '</div>',
+
+    link: function(scope, element, attrs) {
+      var outer = d3.select(element[0]);
+      var inner = outer.select('.inner');
+      var scale = d3.scale.linear()
+        .range([0, 100]);
+
+      scope.$watch('[current, max]', function(key, oldVal, newVal) {
+        var current = parseFloat(scope.current);
+        var max = parseFloat(scope.max);
+
+        scale.domain([0, max]);
+        inner.style('width', scale(current) + '%');
+
+        return newVal;
+      }, true);
+    }
+  };
+});
+
+
 })();

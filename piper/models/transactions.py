@@ -36,7 +36,7 @@ class Transaction(Model):
 
         super(Transaction, self).__init__(splits=real_splits, **kwargs)
 
-    def serialize(self):
+    def serialize(self, detail=False):
         data = super(Transaction, self).serialize()
         data['splits'] = self.splits
         return data
@@ -93,7 +93,7 @@ class Split(Model):
                                 for c in kwargs.get('categories', [])]
         super(Split, self).__init__(**kwargs)
 
-    def serialize(self):
+    def serialize(self, detail=False):
         data = super(Split, self).serialize()
         data['categories'] = self.categories
         return data
@@ -122,7 +122,7 @@ class Category(Model):
     subcategories = relationship('Category', backref=backref("parent", remote_side=id)) 
 
     @utils.with_db
-    def serialize(self, db):
+    def serialize(self, db, detail=False):
         data = super(Category, self).serialize()
 
         full_name = []

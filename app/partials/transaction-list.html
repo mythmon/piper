@@ -25,7 +25,7 @@
   </div>
 </div>
 
-<ul class="transaction-list">
+<ul class="object-list">
   <li class="row header">
     <div class="small-2 columns">When</div>
     <div class="small-3 columns">Where</div>
@@ -39,7 +39,7 @@
     </div>
   </li>
 
-  <li class="row transaction"
+  <li class="row object"
       ng-controller="TransactionRow"
       ng-repeat="trans in transactions | orderBy:orderProp">
 

@@ -1,0 +1,16 @@
+<div class="row">
+  <table class="table small-10 push-1 columns">
+    <tr>
+      <th>Name</th>
+      <th>Limit</th>
+      <th>Progress</th>
+      <th>Left</th>
+    </tr>
+    <tr ng-repeat="budget in budgets">
+      <td>{{ budget.name }}</td>
+      <td>{{ budget.limit | currency }}</td>
+      <td><d3-budget-progress max="{{ budget.limit }}" current="{{ budget.remaining }}"/></td>
+      <td>{{ budget.remaining | currency}}</td>
+    </tr>
+  </table>
+</div>

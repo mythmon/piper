@@ -34,12 +34,12 @@ class _BaseModel(object):
     def column_whitelist(cls):
         return [c.key for c in class_mapper(cls).columns]
 
-    def serialize(self):
+    def serialize(self, detail=False):
         return {c.key: getattr(self, c.key)
                 for c in class_mapper(self.__class__).columns}
 
-    def for_json(self):
-        data = self.serialize()
+    def for_json(self, detail=False):
+        data = self.serialize(detail=detail)
 
         try:
             for key, val in data.items():

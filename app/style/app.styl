@@ -19,7 +19,7 @@ border-color = #ddd;
   }
 }
 
-.transaction-list {
+.object-list {
   margin: 0;
 
   .header {
@@ -30,7 +30,7 @@ border-color = #ddd;
     list-style: none;
   }
 
-  .transaction {
+  .object {
     border-left: 1px solid border-color;
     border-right: 1px solid border-color;
     list-style: none;
@@ -111,5 +111,18 @@ form[name=search] {
     &.error ~ small {
       color: #c60f13;
     }
+  }
+}
+
+
+.progress-bar {
+  border: 1px solid;
+  display: inline-block;
+  height: 1em;
+  width: 100%;
+
+  .inner {
+    background: #00f;
+    height: 100%;
   }
 }

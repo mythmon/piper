@@ -5,12 +5,10 @@ from flask import Blueprint, Response, request, current_app, make_response
 from flask.views import MethodView
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import class_mapper, subqueryload
+from sqlalchemy.orm import class_mapper
 from sqlalchemy.orm.exc import NoResultFound
 
 from piper import utils
-from piper.database import get_session, Model
-from piper.models import Transaction, Split, Category
 
 
 blueprint = Blueprint('api', __name__, url_prefix='/api')
@@ -39,7 +37,7 @@ class ModelView(MethodView):
     def get_one(self, id, db):
         try:
             inst = db.query(self.model).filter(self.model.id == id).one()
-            return utils.json_response(inst)
+            return utils.json_response(inst, detail=True)
         except NoResultFound:
             return make_response(('', 404, {}))
 
@@ -72,7 +70,7 @@ class ModelView(MethodView):
         data = request.get_json()
         inst = db.query(self.model).filter(self.model.id == id).one()
         try:
-            inst.update(db=db, **data)
+            inst.update(**data)
             db.add(inst)
             db.commit()
         except IntegrityError:
@@ -102,18 +100,3 @@ def register_model_view(blueprint):
         return cls
 
     return inner
-
-
-@register_model_view(blueprint)
-class TransactionView(ModelView):
-    model = Transaction
-
-
-@register_model_view(blueprint)
-class CategoryView(ModelView):
-    model = Category
-
-
-@register_model_view(blueprint)
-class SplitView(ModelView):
-    model = Split

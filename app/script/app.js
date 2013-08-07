@@ -2,6 +2,8 @@
 
 var piper = angular.module('piper', ['restangular']);
 
+var TMPL_BASE = '/static/partials';
+
 piper.config(['$routeProvider', '$locationProvider',
   function($routeProvider, $locationProvider) {
 
@@ -9,18 +11,18 @@ piper.config(['$routeProvider', '$locationProvider',
 
     $routeProvider
       .when('/transactions', {
-        templateUrl: '/static/partials/transaction-list.html',
+        templateUrl: TMPL_BASE + '/transaction-list.html',
         controller: 'TransactionListCtrl'
       })
 
-      .when('/transaction/add', {
-        templateUrl: '/static/partials/transaction-add.html',
-        controller: 'TransactionAddCtrl'
+      .when('/budgets', {
+        templateUrl: TMPL_BASE + '/budget-list.html',
+        controller: 'BudgetListCtrl'
       })
 
-      .when('/transaction/:id', {
-        templateUrl: '/static/partials/transaction-detail.html',
-        controller: 'TransactionDetailCtrl'
+      .when('/budget/add', {
+        templateUrl: TMPL_BASE + '/budget-add.html',
+        controller: 'BudgetListCtrl'
       })
 
       .otherwise({redirectTo: '/transactions'});
