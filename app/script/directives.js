@@ -142,8 +142,8 @@ module.directive('d3BudgetProgress', function() {
         .range([0, 100]);
 
       scope.$watch('[current, max]', function(key, oldVal, newVal) {
-        var current = parseFloat(scope.current);
-        var max = parseFloat(scope.max);
+        var current = Math.round(parseFloat(scope.current));
+        var max = Math.round(parseFloat(scope.max));
 
         scale.domain([0, max]);
         inner.style('width', scale(current) + '%');
