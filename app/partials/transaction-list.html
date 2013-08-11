@@ -1,5 +1,5 @@
-<form name="search">
-  <div class="row spaced">
+<div class="row spaced">
+  <form name="search">
     <div class="small-6 columns">
       <label>
         <i class="icon search"></i> Search
@@ -13,11 +13,11 @@
       </small>
       <small>{{ query }}</small>
     </div>
-    <div class="small-1 columns">
-      <button ng-click="addNew()">Add</button>
-    </div>
+  </form>
+  <div class="push-4 small-2 columns">
+    <button ng-click="addNew()">Add</button>
   </div>
-</form>
+</div>
 
 <div class="row">
   <div class="small-12 columns">
@@ -70,7 +70,7 @@
       </div>
     </div>
 
-    <div ng-show="editing" ng-include="'/static/partials/transaction-add.html?bust=13'"></div>
+    <div ng-show="editing" ng-include="'/static/partials/transaction-add.html?bust=4'"></div>
 
     <div class="action-bar">
       <i class="edit pencil icon" ng-click="edit()" ng-show="!editing"></i>

@@ -9,9 +9,7 @@
     font-style: normal;
 }
 
-
 border-color = #ddd;
-
 
 .row.spaced {
   &:not(:last-child) {
@@ -91,7 +89,6 @@ border-color = #ddd;
   &.search:before { content: "\1F50D"; }
 }
 
-
 /* Override Foundation's opinion that focused elements should not be
  * marked invalid for the search field. */
 form[name=search] {
@@ -114,7 +111,6 @@ form[name=search] {
   }
 }
 
-
 .progress-bar {
   border: 1px solid;
   display: inline-block;
@@ -125,4 +121,12 @@ form[name=search] {
     background: #00f;
     height: 100%;
   }
+}
+
+.offscreen {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
 }
