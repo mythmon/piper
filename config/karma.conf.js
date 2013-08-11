@@ -15,6 +15,6 @@ module.exports = function(config) {
       'test/unit/**/*.js'
     ],
     autoWatch: true,
-    browsers: ['Firefox']
+    browsers: ['PhantomJS']
   });
 };

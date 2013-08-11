@@ -26,11 +26,6 @@ piper.controller('BudgetEditCtrl', ['$scope', '$routeParams', 'Restangular', '$q
       $scope.budget = budget;
     });
 
-    $scope.watch('budget.limit', function(name, oldVal, newVal) {
-      console.log(name, oldVal, '->', newVal);
-      return newVal;
-    });
-
     $scope.save = function() {
       var d = $q.defer();
 
