@@ -10,27 +10,28 @@ piper.config(['$routeProvider', '$locationProvider',
     $locationProvider.html5Mode(true);
 
     $routeProvider
-      .when('/transactions', {
+      .when('/transaction', {
         templateUrl: TMPL_BASE + '/transaction-list.html',
         controller: 'TransactionListCtrl'
       })
 
-      .when('/budgets', {
+      .when('/budget', {
         templateUrl: TMPL_BASE + '/budget-list.html',
         controller: 'BudgetListCtrl'
       })
 
-      .when('/budget/add', {
-        templateUrl: TMPL_BASE + '/budget-add.html',
-        controller: 'BudgetListCtrl'
+      .when('/budget/:id', {
+        templateUrl: TMPL_BASE + '/budget-edit.html',
+        controller: 'BudgetEditCtrl'
       })
 
-      .when('/budget/audit', {
+      .when('/audit', {
         templateUrl: TMPL_BASE + '/budget-audit.html',
         controller: 'BudgetAuditCtrl'
       })
 
-      .otherwise({redirectTo: '/transactions'});
+      .when('/', {redirectTo: 'transaction'})
+      .otherwise({templateUrl: TMPL_BASE + '/404.html'})
   }
 ]);
 
@@ -39,5 +40,11 @@ piper.config(['RestangularProvider',
     RestangularProvider.setBaseUrl('/api');
   }
 ]);
+
+piper.run(function($rootScope, $templateCache) {
+  $rootScope.$on('$viewContentLoaded', function() {
+    $templateCache.removeAll();
+  });
+});
 
 })();

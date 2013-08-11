@@ -1,18 +1,12 @@
 import json
-from datetime import datetime
 from decimal import Decimal
-from numbers import Number
 
-from flask import current_app
 
-from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,
-                        Table)
-from sqlalchemy.orm import joinedload
+from sqlalchemy import Column, Integer, Numeric, String
 
 from piper import utils
 from piper.api.search import S as Search
 from piper.database import Model
-from piper.models.transactions import Transaction, Split
 
 
 class Budget(Model):
@@ -33,6 +27,11 @@ class Budget(Model):
 
         return data
 
+    def update(self, **kwargs):
+        for key in ['transactions', 'remaining']:
+            kwargs.pop(key, None)
+        super(Budget, self).update(**kwargs)
+
     @property
     def search_parsed(self):
         if not hasattr(self, '_search_parsed'):
@@ -44,7 +43,7 @@ class Budget(Model):
         if not hasattr(self, '_transactions'):
             self._transactions = Search(self.search_parsed)
         return self._transactions
-    
+
     @property
     def remaining(self):
         if not hasattr(self, '_remaining'):
@@ -53,4 +52,3 @@ class Budget(Model):
                 total += sum(Decimal(s['amount']) for s in t['splits'])
             self._remaining = self.limit - total
         return self._remaining
-    

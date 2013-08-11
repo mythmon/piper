@@ -17,10 +17,10 @@ piper.controller('TransactionListCtrl', ['$scope', '$http', 'Restangular',
           editing: true,
           justAdded: true,
         };
-        allTransactions.unshift(trans);
-        console.log($scope.transactions);
         $scope.transactions.unshift(trans);
-        console.log($scope.transactions);
+        if ($scope.transaction !== allTransactions) {
+          allTransactions.unshift(trans);
+        }
       })
     };
 
@@ -44,13 +44,6 @@ piper.controller('TransactionListCtrl', ['$scope', '$http', 'Restangular',
         $scope.transactions = allTransactions;
       }
     }
-  }
-]);
-
-
-piper.controller('TransactionDetailCtrl', ['$scope', '$routeParams', 'Restangular',
-  function($scope, $routeParams, Restangular) {
-    $scope.trans = Restangular.one('transaction', $routeParams.id).get();
   }
 ]);
 

@@ -1,0 +1,32 @@
+<div class="row">
+  <h1>
+    <span ng-show="budget.id">Edit</span>
+    <span ng-hide="budget.id">Add</span>
+    a budget
+  </h1>
+
+  <form class="small-6 columns">
+
+    <div>
+      <label>Name</label>
+      <input type="text" ng-model="budget.name" />
+    </div>
+
+    <div>
+      <label>Search</label>
+      <input type="text" ng-model="budget.search" />
+    </div>
+
+    <div>
+      <label>Limit</label>
+      <input type="text" ng-model="budget.limit" />
+    </div>
+
+    <button ng-click="save()">Save</button>
+
+  </form>
+
+  <div class="small-6 columns">
+    {{ budget }}
+  </div>
+</div>

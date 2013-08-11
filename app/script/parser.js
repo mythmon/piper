@@ -211,7 +211,7 @@
             'expected one of: ' + expected;
     }
 
-    return match;
+  return match;
   }
 
   /* Return true if the stream is at the end, false otherwise. */
@@ -240,6 +240,19 @@
   }
 
 
+  function searchSerializer(search) {
+    var key;
+
+    var accumulator = '';
+
+    for (key in search) {
+      if (key === 'and') {
+        _.map(search[key], searchSerializer);
+      }
+    }
+  }
+
   window.searchParser = searchParser;
+  window.searchSerializer = searchSerializer;
 
 })();
