@@ -41,7 +41,7 @@
 
   <li class="row object"
       ng-controller="TransactionRow"
-      ng-repeat="trans in transactions | orderBy:orderProp">
+      ng-repeat="trans in transactions | orderBy:orderProp | filter:transVisible">
 
     <div class="display" ng-show="!editing">
       <div class="small-2 columns">

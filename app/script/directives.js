@@ -105,11 +105,12 @@ module.directive('parsedSearch', function() {
       ctrl.$parsers.push(function(value) {
         if (value == '') {
           ctrl.$setValidity('parsed-search', true)
-          return null
+          return undefined;
         }
         try {
           ctrl.$setValidity('parsed-search', true)
-          return searchParser(value);
+          var ret =  searchParser(value);
+          return ret;
         } catch (e) {
           ctrl.$setValidity('parsed-search', false)
           ctrl.$error['parsed-search'] = e;

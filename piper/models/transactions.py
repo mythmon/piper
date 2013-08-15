@@ -186,7 +186,7 @@ class Category(Model):
                         cat = cat[0]
                     parent = cat
             else:
-                raise
+                return None
 
         db.commit()
 

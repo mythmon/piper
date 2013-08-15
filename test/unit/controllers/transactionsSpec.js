@@ -22,12 +22,8 @@ describe('controllers.transaction', function(){
       $httpBackend.verifyNoOutstandingRequest();
     });
 
-    async.it('should create "transactions" model from xhr', function(done) {
-      scope.transactions.then(function(transactions) {
-        expect(transactions.length).toBe(2);
-        done();
-      });
-      scope.$apply();
+    it('should create "transactions" model from xhr', function() {
+      expect(scope.transactions.length).toBe(2);
     });
 
     it('should set orderProp to sort by newly added, date, and id', function() {

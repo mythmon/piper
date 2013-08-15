@@ -4,45 +4,57 @@ var piper = angular.module('piper');
 
 piper.controller('TransactionListCtrl', ['$scope', '$http', 'Restangular',
   function TransactionListCtrl($scope, $http, Restangular) {
-    var allTransactions = Restangular.all('transaction').getList();
-
-    $scope.transactions = allTransactions;
+    var localId = 1000;
+    $scope.searched = false;
+    $scope.searchResults = [];
+    $scope.transactions = [];
     $scope.orderProp = ['justAdded', '-purchase_date','-id'];
 
+    Restangular.all('transaction').getList().then(function(transactions) {
+      $scope.transactions = transactions;
+    });
+
     $scope.addNew = function() {
-      allTransactions.then(function(allTransactions) {
-        var trans = {
-          purchase_date: +moment().startOf('day'),
-          splits: [],
-          editing: true,
-          justAdded: true,
-        };
-        $scope.transactions.unshift(trans);
-        if ($scope.transaction !== allTransactions) {
-          allTransactions.unshift(trans);
-        }
-      })
+      var trans = {
+        purchase_date: +moment().startOf('day'),
+        splits: [],
+        editing: true,
+        justAdded: true,
+        localId: localId++
+      };
+      $scope.transactions.unshift(trans);
     };
 
-    var searchTimeout = null;
     $scope.$watch('query', function(key, oldVal, newVal) {
-      if (searchTimeout !== null) {
-        clearTimeout(searchTimeout);
-      }
-      searchTimeout = setTimeout(search, 250);
+      search();
       return newVal;
     });
 
     function search() {
-      searchTimeout = null;
-
       if ($scope.query) {
-        $http.post('/api/search', $scope.query).then(function(res) {
-          $scope.transactions = res.data;
-        });
+        $http.post('/api/search', $scope.query)
+          .success(function(data) {
+            $scope.searchResults = data;
+            $scope.searched = true;
+          })
+          .error(function() {
+            $scope.searchResults = [];
+            $scope.searched = true;
+          });
       } else {
-        $scope.transactions = allTransactions;
+        $scope.searched = false;
       }
+    }
+
+    $scope.transVisible = function(trans) {
+      if (!$scope.searched) {
+        return true;
+      }
+      if (trans.justAdded) {
+        return true;
+      }
+      var index = _.pluck($scope.searchResults, 'id').indexOf(trans.id);
+      return index >= 0;
     }
   }
 ]);
@@ -66,6 +78,7 @@ piper.controller('TransactionRow', ['$scope', 'Restangular',
 
     $scope.save = function() {
       $scope.trans.justAdded = undefined;
+      $scope.trans.localId = undefined;
 
       if ($scope.trans.id === undefined) {
         Restangular.all('transaction').post($scope.trans).then(function(resp) {
@@ -78,12 +91,16 @@ piper.controller('TransactionRow', ['$scope', 'Restangular',
 
     $scope.delete = function() {
       function removeLocal() {
-        $scope.transactions.then(function(transactions) {
-          var i = transactions.indexOf($scope.trans);
-          if (i !== -1) {
-            transactions.splice(i, 1);
+        var i;
+        for (i = 0; i < $scope.transactions.length; i++) {
+          var other = $scope.transactions[i];
+          var matches = ($scope.trans.id === other.id) ||
+            ($scope.trans.localId === other.localId && other.localId !== undefined);
+          if (matches) {
+            $scope.transactions.splice(i, 1);
+            break;
           }
-        });
+        }
       }
 
       if ($scope.trans.id !== undefined) {

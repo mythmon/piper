@@ -49,8 +49,12 @@ def S_contains_tag(val):
     stack = set([Category.get(val, False)])
     while stack:
         cat = stack.pop()
-        all_cats.append(cat)
-        stack.update(cat.subcategories)
+        if cat:
+            all_cats.append(cat)
+            stack.update(cat.subcategories)
+
+    if not all_cats:
+        return Split.categories.any(Category.id == -1)
 
     return Split.categories.any(Category.id.in_(c.id for c in all_cats))
 
