@@ -146,6 +146,11 @@ module.directive('d3BudgetProgress', function() {
         var current = Math.round(parseFloat(scope.current));
         var max = Math.round(parseFloat(scope.max));
 
+        if (current <= -0.01) {
+          outer.classed('error', true);
+          current = 0;
+        }
+
         scale.domain([0, max]);
         inner.style('width', scale(current) + '%');
 
@@ -154,6 +159,5 @@ module.directive('d3BudgetProgress', function() {
     }
   };
 });
-
 
 })();

@@ -21,7 +21,7 @@ class Budget(Model):
     def serialize(self, detail=False):
         data = super(Budget, self).serialize()
 
-        data['remaining'] = self.remaining
+        data['remaining'] = '%.2f' % self.remaining
         if detail:
             data['transactions'] = self.transactions
 
@@ -48,7 +48,8 @@ class Budget(Model):
     def remaining(self):
         if not hasattr(self, '_remaining'):
             total = Decimal(0)
+            # Expenses are negative.
             for t in self.transactions:
                 total += sum(Decimal(s['amount']) for s in t['splits'])
-            self._remaining = self.limit - total
+            self._remaining = self.limit + total
         return self._remaining

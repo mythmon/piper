@@ -28,13 +28,12 @@
 <ul class="object-list">
   <li class="row header">
     <div class="small-2 columns">When</div>
-    <div class="small-3 columns">Where</div>
-    <div class="small-7 columns">
+    <div class="small-2 columns">Where</div>
+    <div class="small-8 columns">
       <div class=" row">
-        <div class="small-3 columns">Amount 
-        </div><div class="small-3 columns">Note
-        </div><div class="small-6 columns">
-          Category</div>
+        <div class="small-2 columns">Amount</div>
+        <div class="small-4 columns">Note</div>
+        <div class="small-6 columns">Category</div>
       </div>
     </div>
   </li>
@@ -47,17 +46,17 @@
       <div class="small-2 columns">
         {{ trans.purchase_date | date:'yyyy-MM-dd' }}
       </div>
-      <div class="small-3 columns">
+      <div class="small-2 columns">
         {{ trans.merchant }}
       </div>
 
-      <div class="small-7 columns">
+      <div class="small-8 columns">
         <ul>
           <li class="row" ng-repeat="split in trans.splits">
-            <div class="small-3 columns">
-              {{ split.amount | currency }}
+            <div class="small-2 columns money">
+              {{ split.amount | money }}
             </div>
-            <div class="small-3 columns">
+            <div class="small-4 columns">
               {{ split.note }}
             </div>
             <div class="small-6 columns">

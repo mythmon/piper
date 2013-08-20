@@ -68,13 +68,22 @@ border-color = #ddd;
   }
 }
 
+.action-bar {
+  text-align: right;
+}
+
+.money {
+  text-align: right;
+}
+
 .tag {
-  padding: 3px;
   background: #eee;
   border-radius: 1px;
-  margin: 0 3px;
-  font-size: 0.8em;
   box-shadow: 0px 0px 1px 0 rgba(0,0,0,0.5);
+  display: inline-block;
+  font-size: 0.8em;
+  margin: 0 3px;
+  padding: 3px;
 }
 
 .icon {
@@ -116,6 +125,11 @@ form[name=search] {
   display: inline-block;
   height: 1em;
   width: 100%;
+
+  &.error {
+    border: 1px solid rgb(198, 15, 19);
+    box-shadow: 0px 0px 2px 1px rgba(198, 15, 19, 0.5) inset;
+  }
 
   .inner {
     background: #00f;

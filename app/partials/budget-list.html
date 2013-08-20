@@ -8,17 +8,17 @@
   <table class="table small-10 push-1 columns">
     <tr>
       <th>Name</th>
-      <th>Limit</th>
+      <th class="money">Limit</th>
       <th>Progress</th>
-      <th>Left</th>
-      <th>Edit</th>
+      <th class="money">Left</th>
+      <th class="action-bar">Edit</th>
     </tr>
     <tr ng-repeat="budget in budgets">
       <td>{{ budget.name }}</td>
-      <td>{{ budget.limit | currency }}</td>
+      <td class="money">{{ budget.limit | money }}</td>
       <td><d3-budget-progress max="{{ budget.limit }}" current="{{ budget.remaining }}"/></td>
-      <td>{{ budget.remaining | currency}}</td>
-      <td>
+      <td class="money">{{ budget.remaining | money}}</td>
+      <td class="action-bar">
         <a ng-href="/budget/{{ budget.id }}">
           <i class="edit pencil icon"></i>
         </a>

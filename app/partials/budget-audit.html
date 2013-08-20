@@ -9,7 +9,7 @@
     <div class="small-2 columns">When</div>
     <div class="small-2 columns">Where</div>
     <div class="small-8 columns">
-      <div class=" row">
+      <div class="row">
         <div class="small-2 columns">Amount</div>
         <div class="small-3 columns">Note</div>
         <div class="small-5 columns">Category</div>
@@ -34,7 +34,7 @@
         <ul>
           <li class="row" ng-repeat="split in trans.splits">
             <div class="small-2 columns">
-              {{ split.amount | currency }}
+              {{ split.amount | money }}
             </div>
             <div class="small-3 columns">
               {{ split.note }}
