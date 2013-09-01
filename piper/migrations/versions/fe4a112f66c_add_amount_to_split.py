@@ -10,7 +10,6 @@ from alembic import op
 import sqlalchemy as sa
 
 
-
 revision = 'fe4a112f66c'
 down_revision = '2241ef954d7f'
 

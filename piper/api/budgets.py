@@ -5,15 +5,12 @@ from sqlalchemy.orm import joinedload
 from piper import utils
 from piper.api import blueprint, ModelView, register_model_view
 from piper.models.budgets import Budget
-from piper.models.transactions import Split, Transaction
+from piper.models.transactions import Split
 
 
 @register_model_view(blueprint)
 class BudgetView(ModelView):
     model = Budget
-
-
-import q
 
 
 @blueprint.route('/budget/audit')

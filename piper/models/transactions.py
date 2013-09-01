@@ -1,7 +1,4 @@
 from datetime import datetime
-from numbers import Number
-
-from flask import current_app
 
 from sqlalchemy import (Column, DateTime, ForeignKey, Integer, Numeric, String,
                         Table)
@@ -9,7 +6,7 @@ from sqlalchemy.orm import backref, relationship
 from sqlalchemy.orm.exc import NoResultFound
 
 from piper import utils
-from piper.database import get_session, Model
+from piper.database import Model
 
 
 class Transaction(Model):
@@ -50,7 +47,7 @@ class Transaction(Model):
             if split_raw.get('id') is None:
                 s = Split(transaction=self, **split_raw)
                 kwargs['splits'].append(s)
-                db.add(s);
+                db.add(s)
             else:
                 s = db.query(Split).filter(Split.id == split_raw['id']).one()
                 s.update(**split_raw)
@@ -110,7 +107,6 @@ class Split(Model):
         super(Split, self).update(**kwargs)
 
 
-
 class Category(Model):
     """An item in the category tree."""
     __tablename__ = 'category'
@@ -118,8 +114,8 @@ class Category(Model):
     id = Column(Integer, primary_key=True)
     name = Column(String(64), nullable=False)
     parent_id = Column(Integer, ForeignKey('category.id'), nullable=True)
-    subcategories = relationship('Category', remote_side='parent')
-    subcategories = relationship('Category', backref=backref("parent", remote_side=id)) 
+    subcategories = relationship('Category',
+                                 backref=backref("parent", remote_side=id))
 
     @utils.with_db
     def serialize(self, db, detail=False):
@@ -155,9 +151,10 @@ class Category(Model):
         These are both equivalent, and mean to get the category 'baz' who's
         parent is the category 'bar' who's parent is the category 'foo'.
 
-        `create` is whether or not to create new categories, if no existing categoires match.
-        If `create` is False and no matching category is found, then a
-        `sqlalchemy.orm.exc.NoResultFound` error will be raised.
+        `create` is whether or not to create new categories, if no
+        existing categoires match. If `create` is False and no matching
+        category is found, then a `sqlalchemy.orm.exc.NoResultFound`
+        error will be raised.
         """
 
         spec = cls._coerce(spec)
@@ -166,7 +163,7 @@ class Category(Model):
 
         try:
             cat = (db.query(Category)
-                     .filter(Category.name == spec[0], Category.parent == None))
+                   .filter(Category.name == spec[0], Category.parent == None))
             for n in spec[1:]:
                 cat = (db.query(Category).filter(Category.name == n,
                                                  Category.parent == cat.one()))

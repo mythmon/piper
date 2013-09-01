@@ -3,8 +3,9 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
-from piper.models import budgets, transactions
 from piper.database import Model
+# Import for side affect
+from piper.models import budgets, transactions
 
 try:
     from piper.settings.local import DATABASE_URL

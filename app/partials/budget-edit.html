@@ -2,7 +2,7 @@
   <h1>
     <span ng-show="budget.id">Edit</span>
     <span ng-hide="budget.id">Add</span>
-    a budget
+    a Budget
   </h1>
 
   <form class="small-6 columns">
@@ -20,6 +20,16 @@
     <div>
       <label>Limit</label>
       <input type="text" ng-model="budget.limit" />
+    </div>
+
+    <div>
+      <label>Start</label>
+      <input type="date" fortnight unix-time ng-model="budget.start" />
+    </div>
+
+    <div>
+      <label>End</label>
+      <input type="date" fortnight unix-time ng-model="budget.end" />
     </div>
 
     <button ng-click="save()">Save</button>

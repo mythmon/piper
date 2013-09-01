@@ -1,8 +1,9 @@
 import operator
+import json
 
-from flask import Blueprint, request
+from flask import request
 
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager
 
 from piper import utils
 from piper.api import blueprint
@@ -12,26 +13,27 @@ from piper.models.transactions import Transaction, Split, Category
 @blueprint.route('/search', methods=['GET', 'POST'])
 @utils.with_db
 def search(db):
-    query = request.get_json() or {}
+    query = request.get_json() or json.loads(request.data)
     transactions = S(query)
     return utils.json_response(list(transactions))
 
 
 @utils.with_db
 def S(query, db):
-    splits = (db.query(Split)
-              .join(Split.categories)
-              .options(joinedload(Split.transaction))
-              .filter(S_actions(query)))
-    transactions = set(s.transaction for s in splits)
-    transactions = [t.for_json() for t in transactions]
+    q = (db.query(Transaction)
+         .join(Split, Transaction.splits)
+         .join(Category, Split.categories)
+         .options(contains_eager(Transaction.splits))
+         .filter(S_actions(query))
+         )
 
-    for t in transactions:
-        t['splits'] = [s.for_json()
-                       for s in filter(lambda s: s in splits, t['splits'])]
-    db.rollback()
+    return [t.for_json() for t in q.all()]
 
-    return transactions
+
+attrs = {
+    'date': (Transaction.purchase_date, utils.coerce_datetime),
+    'created': (Transaction.created, utils.coerce_datetime),
+}
 
 
 def S_actions(query):
@@ -58,6 +60,15 @@ def S_contains_tag(val):
 
     return Split.categories.any(Category.id.in_(c.id for c in all_cats))
 
+
+def S_attr_op(op):
+    def f(spec):
+        filters = (op(attrs[key][0], attrs[key][1](val))
+                   for key, val in spec.items())
+        return reduce(operator.and_, filters)
+    return f
+
+
 def S_and(args):
     return reduce(operator.and_, (S_actions(a) for a in args))
 
@@ -72,8 +83,16 @@ def S_not(args):
 
 S_parts = {
     'contains': S_contains,
+    'contains_tag': S_contains_tag,
+
+    'equals': S_attr_op(operator.eq),
+    'not-equals': S_attr_op(operator.ne),
+    'greater': S_attr_op(operator.gt),
+    'greater-equal': S_attr_op(operator.ge),
+    'less': S_attr_op(operator.lt),
+    'less-equal': S_attr_op(operator.le),
+
     'and': S_and,
     'or': S_or,
     'not': S_not,
-    'contains_tag': S_contains_tag,
 }
